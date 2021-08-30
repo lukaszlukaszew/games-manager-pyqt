@@ -1,7 +1,9 @@
 .idea/
+__pycache__/
 1979 Revolution.docx
 a.sql
 aaa.py
+config.py
 DG.py
 Gry do odnalezienia.xlsx
 gry ukończone.xlsx
