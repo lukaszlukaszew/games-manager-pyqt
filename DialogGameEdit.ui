@@ -346,6 +346,18 @@
        </item>
        <item row="0" column="1">
         <widget class="QLabel" name="labelGameEditGraphics">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>30</width>
+           <height>0</height>
+          </size>
+         </property>
          <property name="text">
           <string/>
          </property>
@@ -356,6 +368,18 @@
        </item>
        <item row="1" column="1">
         <widget class="QLabel" name="labelGameEditSound">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>30</width>
+           <height>0</height>
+          </size>
+         </property>
          <property name="text">
           <string/>
          </property>
@@ -366,6 +390,18 @@
        </item>
        <item row="2" column="1">
         <widget class="QLabel" name="labelGameEditOptimization">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>30</width>
+           <height>0</height>
+          </size>
+         </property>
          <property name="text">
           <string/>
          </property>
@@ -376,6 +412,18 @@
        </item>
        <item row="3" column="1">
         <widget class="QLabel" name="labelGameEditAmbience">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>30</width>
+           <height>0</height>
+          </size>
+         </property>
          <property name="text">
           <string/>
          </property>
@@ -386,6 +434,18 @@
        </item>
        <item row="4" column="1">
         <widget class="QLabel" name="labelGameEditPlayability">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>30</width>
+           <height>0</height>
+          </size>
+         </property>
          <property name="text">
           <string/>
          </property>
@@ -396,6 +456,18 @@
        </item>
        <item row="5" column="1">
         <widget class="QLabel" name="labelGameEditFun">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>30</width>
+           <height>0</height>
+          </size>
+         </property>
          <property name="text">
           <string/>
          </property>
@@ -406,16 +478,18 @@
        </item>
        <item row="6" column="1">
         <widget class="QLabel" name="labelGameEditStory">
-         <property name="text">
-          <string/>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
          </property>
-         <property name="alignment">
-          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         <property name="minimumSize">
+          <size>
+           <width>30</width>
+           <height>0</height>
+          </size>
          </property>
-        </widget>
-       </item>
-       <item row="8" column="1">
-        <widget class="QLabel" name="labelGameEditAvgNote">
          <property name="text">
           <string/>
          </property>
@@ -507,13 +581,6 @@
         <widget class="QPushButton" name="pushButtonGameEditDifficultyNotCompleted">
          <property name="text">
           <string>-</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="2">
-        <widget class="QPushButton" name="pushButtonGameEditStorageBind">
-         <property name="text">
-          <string>&gt;</string>
          </property>
         </widget>
        </item>

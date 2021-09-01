@@ -95,3 +95,21 @@ FROM Games a
 		GROUP BY GameId) g on g.GameId = a.Id
 
 GO
+
+CREATE VIEW Collection_View
+AS
+SELECT g.Id, d.DictValueName
+FROM dbo.Games g
+	INNER JOIN dbo.GamesCollection gc on g.Id = gc.GameId
+	INNER JOIN dbo.Dictionaries d on gc.CollectionCategory = d.Id
+
+GO
+
+CREATE VIEW Difficulties_View
+AS
+SELECT g.Id, gdl.InGameNumber, gdl.Completed, d.DictValueName
+FROM dbo.Games g
+	INNER JOIN dbo.GamesDifficultyLevels gdl on g.Id = gdl.GameId
+	INNER JOIN dbo.Dictionaries d on d.Id = gdl.DificultyId
+
+GO

@@ -73,6 +73,7 @@ class DGameEdit(QDialog):
 
         self.ui.pushButtonGameEditSave.clicked.connect(self.game_edit_save)
         self.ui.pushButtonGameEditCancel.clicked.connect(self.close)
+
         self.ui.horizontalSliderGameEditGraphics.valueChanged.connect(self.game_avg_note)
         self.ui.horizontalSliderGameEditSound.valueChanged.connect(self.game_avg_note)
         self.ui.horizontalSliderGameEditPlayability.valueChanged.connect(self.game_avg_note)
@@ -80,19 +81,21 @@ class DGameEdit(QDialog):
         self.ui.horizontalSliderGameEditAmbience.valueChanged.connect(self.game_avg_note)
         self.ui.horizontalSliderGameEditOptimization.valueChanged.connect(self.game_avg_note)
         self.ui.horizontalSliderGameEditFun.valueChanged.connect(self.game_avg_note)
-
+        self.ui.pushButtonGameEditDifficultyCompleted.clicked.connect(self.game_difficulty_completed)
+        self.ui.pushButtonGameEditDifficultyNotCompleted.clicked.connect(self.game_difficulty_not_completed)
 
         self.game = self.Game(connector, game_id)
 
         self.ui.lineEditGameEditId.setText(str(game_id))
         self.ui.lineEditGameEditTitle.setText(self.game.query_game_data.record(0).value("GameTitle"))
-        #self.ui.dateEditGameEditRelease.setDate(self.game.game_data.record(0).value("ReleaseDate"))
+        # self.ui.dateEditGameEditRelease.setDate(self.game.game_data.record(0).value("ReleaseDate"))
 
         current_index = -1
 
         for i in range(self.game.query_game_series.rowCount()):
             self.ui.comboBoxGameEditSeries.addItem(self.game.query_game_series.record(i).value("DictValueName"))
-            if self.game.query_game_data.record(0).value("SeriesId") == self.game.query_game_series.record(i).value("Id"):
+            if self.game.query_game_data.record(0).value("SeriesId") == self.game.query_game_series.record(i).value(
+                    "Id"):
                 current_index = i
 
         self.ui.comboBoxGameEditSeries.setCurrentIndex(current_index)
@@ -158,17 +161,58 @@ class DGameEdit(QDialog):
                 )
                 self.ui.labelGameEditFun.setText(str(self.game.query_game_notes.record(i).value("Note")))
 
+        for i in range(self.game.query_game_collection.rowCount()):
+            self.ui.listWidgetGameEditCollection.addItem(
+                self.game.query_game_collection.record(i).value("DictValueName"))
+
+        for i in range(self.game.query_game_difficulties.rowCount()):
+            if self.game.query_game_difficulties.record(i).value("Completed"):
+                self.ui.listWidgetGameEditDifficultyComplete.addItem(
+                    self.game.query_game_difficulties.record(i).value("DictValueName")
+                )
+            else:
+                self.ui.listWidgetGameEditDifficulty.addItem(
+                    self.game.query_game_difficulties.record(i).value("DictValueName")
+                )
+
+
     def game_avg_note(self):
+        self.ui.labelGameEditGraphics.setText(str(self.ui.horizontalSliderGameEditGraphics.value()))
+        self.ui.labelGameEditSound.setText(str(self.ui.horizontalSliderGameEditSound.value()))
+        self.ui.labelGameEditPlayability.setText(str(self.ui.horizontalSliderGameEditPlayability.value()))
+        self.ui.labelGameEditAmbience.setText(str(self.ui.horizontalSliderGameEditAmbience.value()))
+        self.ui.labelGameEditOptimization.setText(str(self.ui.horizontalSliderGameEditOptimization.value()))
+        self.ui.labelGameEditFun.setText(str(self.ui.horizontalSliderGameEditFun.value()))
+        self.ui.labelGameEditStory.setText(str(self.ui.horizontalSliderGameEditStory.value()))
+
         summary = self.ui.horizontalSliderGameEditGraphics.value() + self.ui.horizontalSliderGameEditSound.value() + \
-                   self.ui.horizontalSliderGameEditPlayability.value() +\
-                   self.ui.horizontalSliderGameEditAmbience.value() +\
-                   self.ui.horizontalSliderGameEditOptimization.value() + self.ui.horizontalSliderGameEditFun.value() +\
-                   self.ui.horizontalSliderGameEditStory.value()
+                  self.ui.horizontalSliderGameEditPlayability.value() + \
+                  self.ui.horizontalSliderGameEditAmbience.value() + \
+                  self.ui.horizontalSliderGameEditOptimization.value() + self.ui.horizontalSliderGameEditFun.value() + \
+                  self.ui.horizontalSliderGameEditStory.value()
 
         summary = summary * 10 / 7
 
-        self.ui.progressBarGameEditAvgNote.setValue(int(summary*100))
+        self.ui.progressBarGameEditAvgNote.setValue(int(summary * 100))
         self.ui.progressBarGameEditAvgNote.setFormat("%.02f %%" % summary)
+
+    def game_difficulty_completed(self):
+        if bool(self.ui.listWidgetGameEditDifficulty.selectedItems()):
+            rows = self.ui.listWidgetGameEditDifficulty.currentRow() + 1
+            print(rows)
+            for i in range(rows):
+                self.ui.listWidgetGameEditDifficultyComplete.addItem(
+                    self.ui.listWidgetGameEditDifficulty.item(0).text()
+                )
+
+                self.ui.listWidgetGameEditDifficulty.takeItem(0)
+
+    def game_difficulty_not_completed(self):
+
+        pass
+
+    def game_edit_save(self):
+        pass
 
 
     class Game:
@@ -188,23 +232,26 @@ class DGameEdit(QDialog):
             self.query_game_notes = QSqlQueryModel()
             self.sql_game_notes = 'select NoteCategory, Note from dbo.GamesNotes where GameId = ' + str(game_id)
 
+            self.query_game_collection = QSqlQueryModel()
+            self.sql_game_collection = 'select * from dbo.Collection_View where Id = ' + str(game_id)
 
-            self.game_difficulties = QSqlQueryModel()
-            self.game_collection = QSqlQueryModel()
-            self.game_storage = QSqlQueryModel()
+            self.query_game_difficulties = QSqlQueryModel()
+            self.sql_game_difficulties = 'select * from dbo.Difficulties_View where Id = ' + str(game_id) + 'order by InGameNumber'
 
-
+            #self.game_storage = QSqlQueryModel()
 
             self.query_game_data = connector.sql_query_model_fetch(self.query_game_data, self.sql_game_data)
             self.query_game_series = connector.sql_query_model_fetch(self.query_game_series, self.sql_game_series)
             self.query_game_type = connector.sql_query_model_fetch(self.query_game_type, self.sql_game_type)
             self.query_game_genre = connector.sql_query_model_fetch(self.query_game_genre, self.sql_game_genre)
             self.query_game_notes = connector.sql_query_model_fetch(self.query_game_notes, self.sql_game_notes)
+            self.query_game_collection = connector.sql_query_model_fetch(self.query_game_collection,
+                                                                         self.sql_game_collection)
+            self.query_game_difficulties = connector.sql_query_model_fetch(self.query_game_difficulties,
+                                                                         self.sql_game_difficulties)
 
             ### przy zapisie porównujemy czy wszystko jest takie samo z aktualnymi wartościami
 
-    def game_edit_save(self):
-        pass
 
 
 
@@ -214,3 +261,55 @@ if __name__ == "__main__":
     win = AppGamesManager(connector=db)
     win.show()
     sys.exit(app.exec_())
+
+
+# TODO - storage po stronie bazy
+# TODO - poziomy trudności
+# TODO - data wydania
+# TODO - wywalenie % z progressBara
+# TODO - reformat nr II
+
+# TODO - dodawanie serii
+# TODO - dodawanie typu
+# TODO - dodawanie gatunku
+# TODO - dodawanie kolekcji
+# TODO - dodawanie storage
+# TODO - dodawanie poziomu trudności (zabezpieczneie, żeby nie dodawać tego samego)
+# TODO - dodawanie okładki
+# TODO - reformat nr III
+
+# TODO - zakładka recenzji
+
+# TODO - dodawanie nowej gry
+
+
+# TODO - oprzeć się na procedurach w bazie
+
+# TODO - projekt akcji refresh
+# TODO - akcja refresh
+
+# TODO - projekt akcji about
+# TODO - akcja about
+
+# TODO - projekt akcji SETTINGS
+# TODO - akcja settings (rozdzielczość, motyw,
+
+# TODO - projekt okienka NOTES
+# TODO - akcja NOTES
+
+# TODO - projekt okienka DICTS
+# TODO - akcja DICTS
+
+# TODO - projekt okienka TAGS
+# TODO - akcja TAGS
+
+# TODO - projekt okienka REVIEWS
+# TODO - akcja REVIEWS
+
+# TODO - projekt okienka STORAGE
+# TODO - akcja STORAGE
+
+# TODO - projekt okienka COLLECTION
+# TODO - akcja COLLECTION
+
+# TODO - projekt raportów zdefiniowanych
