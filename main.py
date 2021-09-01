@@ -18,36 +18,23 @@ class AppGamesManager(QMainWindow):
         self.ui.actionGames.triggered.connect(self.subwindow_games)
         self.ui.pushButtonGamesEdit.clicked.connect(self.dialog_game_edit)
 
+        self.sql_games_list = 'select * from dbo.Games_View order by ReleaseDate'
+        self.query_games_list = QSqlQueryModel()
+
         self.connector = connector
 
     def subwindow_games(self):
-
-        self.querymodel = QSqlQueryModel()
-
-        sql_statement = 'select * from dbo.Games_View order by ReleaseDate'
-
-        if self.connector.db.isOpen():
-
-            qry = QSqlQuery(self.connector.db)
-            qry.prepare(sql_statement)
-            qry.exec()
-
-            self.querymodel.setQuery(qry)
-
-            while self.querymodel.canFetchMore():
-                self.querymodel.fetchMore()
-
+        self.query_games_list = self.connector.sql_query_model_fetch(self.query_games_list, self.sql_games_list)
 
         self.ui.mdiArea.addSubWindow(self.ui.subwindowGames)
-        self.ui.tableViewGamesList.setModel(self.querymodel)
+        self.ui.tableViewGamesList.setModel(self.query_games_list)
         self.ui.subwindowGames.showMaximized()
-
 
     def dialog_game_edit(self):
         index = self.ui.tableViewGamesList.currentIndex()
         index = self.ui.tableViewGamesList.model().index(index.row(), 0)
-        _dialog = DGameEdit(self.connector, self.ui.tableViewGamesList.model().data(index))
-        _dialog.exec_()
+        dialog = DGameEdit(self.connector, self.ui.tableViewGamesList.model().data(index))
+        dialog.exec_()
 
 
 class DatabaseConnector:
@@ -56,9 +43,24 @@ class DatabaseConnector:
         self.db.setDatabaseName(config.conn_string)
         self.db.open()
 
-
     def __del__(self):
         self.db.close()
+
+    def sql_query_model_fetch(self, query_model, sql):
+        if self.db.isOpen():
+
+            qry = QSqlQuery(self.db)
+            qry.prepare(sql)
+            qry.exec()
+
+            query_model.setQuery(qry)
+
+            while query_model.canFetchMore():
+                query_model.fetchMore()
+        else:
+            print("Database not connected")
+
+        return query_model
 
 
 class DGameEdit(QDialog):
@@ -66,145 +68,143 @@ class DGameEdit(QDialog):
         super().__init__()
         self.ui = DialogGameEdit.Ui_Dialog()
         self.ui.setupUi(self)
+
+        self.ui.progressBarGameEditAvgNote.setFormat("%.02f %%" % self.ui.progressBarGameEditAvgNote.value())
+
         self.ui.pushButtonGameEditSave.clicked.connect(self.game_edit_save)
         self.ui.pushButtonGameEditCancel.clicked.connect(self.close)
+        self.ui.horizontalSliderGameEditGraphics.valueChanged.connect(self.game_avg_note)
+        self.ui.horizontalSliderGameEditSound.valueChanged.connect(self.game_avg_note)
+        self.ui.horizontalSliderGameEditPlayability.valueChanged.connect(self.game_avg_note)
+        self.ui.horizontalSliderGameEditStory.valueChanged.connect(self.game_avg_note)
+        self.ui.horizontalSliderGameEditAmbience.valueChanged.connect(self.game_avg_note)
+        self.ui.horizontalSliderGameEditOptimization.valueChanged.connect(self.game_avg_note)
+        self.ui.horizontalSliderGameEditFun.valueChanged.connect(self.game_avg_note)
+
 
         self.game = self.Game(connector, game_id)
 
-        self.ui.lineEditGameEditId.setText(str(self.game.game_data.record(0).value("Id")))
-        self.ui.lineEditGameEditTitle.setText(self.game.game_data.record(0).value("GameTitle"))
+        self.ui.lineEditGameEditId.setText(str(game_id))
+        self.ui.lineEditGameEditTitle.setText(self.game.query_game_data.record(0).value("GameTitle"))
         #self.ui.dateEditGameEditRelease.setDate(self.game.game_data.record(0).value("ReleaseDate"))
 
         current_index = -1
 
-        for i in range(self.game.game_series.rowCount()):
-            self.ui.comboBoxGameEditSeries.addItem(self.game.game_series.record(i).value("DictValueName"))
-            if self.game.game_data.record(0).value("SeriesId") == self.game.game_series.record(i).value("Id"):
+        for i in range(self.game.query_game_series.rowCount()):
+            self.ui.comboBoxGameEditSeries.addItem(self.game.query_game_series.record(i).value("DictValueName"))
+            if self.game.query_game_data.record(0).value("SeriesId") == self.game.query_game_series.record(i).value("Id"):
                 current_index = i
 
         self.ui.comboBoxGameEditSeries.setCurrentIndex(current_index)
 
         current_index_2 = -1
 
-        for i in range(self.game.game_type.rowCount()):
-            self.ui.comboBoxGameEditType.addItem(self.game.game_type.record(i).value("DictValueName"))
-            if self.game.game_data.record(0).value("GameAtr") == self.game.game_type.record(i).value("Id"):
+        for i in range(self.game.query_game_type.rowCount()):
+            self.ui.comboBoxGameEditType.addItem(self.game.query_game_type.record(i).value("DictValueName"))
+            if self.game.query_game_data.record(0).value("GameAtr") == self.game.query_game_type.record(i).value("Id"):
                 current_index_2 = i
 
         self.ui.comboBoxGameEditType.setCurrentIndex(current_index_2)
 
         current_index_3 = -1
 
-        for i in range(self.game.game_genre.rowCount()):
-            self.ui.comboBoxGameEditGenre.addItem(self.game.game_genre.record(i).value("DictValueName"))
-            if self.game.game_data.record(0).value("Genre") == self.game.game_genre.record(i).value("Id"):
+        for i in range(self.game.query_game_genre.rowCount()):
+            self.ui.comboBoxGameEditGenre.addItem(self.game.query_game_genre.record(i).value("DictValueName"))
+            if self.game.query_game_data.record(0).value("Genre") == self.game.query_game_genre.record(i).value("Id"):
                 current_index_3 = i
 
         self.ui.comboBoxGameEditGenre.setCurrentIndex(current_index_3)
 
+        for i in range(self.game.query_game_notes.rowCount()):
+            if self.game.query_game_notes.record(i).value("NoteCategory") == 34:
+                self.ui.horizontalSliderGameEditGraphics.setValue(
+                    self.game.query_game_notes.record(i).value("Note")
+                )
+                self.ui.labelGameEditGraphics.setText(str(self.game.query_game_notes.record(i).value("Note")))
 
-        self.data = self.AdditionalData(connector, game_id)
+            if self.game.query_game_notes.record(i).value("NoteCategory") == 35:
+                self.ui.horizontalSliderGameEditSound.setValue(
+                    self.game.query_game_notes.record(i).value("Note")
+                )
+                self.ui.labelGameEditSound.setText(str(self.game.query_game_notes.record(i).value("Note")))
+
+            if self.game.query_game_notes.record(i).value("NoteCategory") == 36:
+                self.ui.horizontalSliderGameEditPlayability.setValue(
+                    self.game.query_game_notes.record(i).value("Note")
+                )
+                self.ui.labelGameEditPlayability.setText(str(self.game.query_game_notes.record(i).value("Note")))
+
+            if self.game.query_game_notes.record(i).value("NoteCategory") == 37:
+                self.ui.horizontalSliderGameEditStory.setValue(
+                    self.game.query_game_notes.record(i).value("Note")
+                )
+                self.ui.labelGameEditStory.setText(str(self.game.query_game_notes.record(i).value("Note")))
+
+            if self.game.query_game_notes.record(i).value("NoteCategory") == 38:
+                self.ui.horizontalSliderGameEditAmbience.setValue(
+                    self.game.query_game_notes.record(i).value("Note")
+                )
+                self.ui.labelGameEditAmbience.setText(str(self.game.query_game_notes.record(i).value("Note")))
+
+            if self.game.query_game_notes.record(i).value("NoteCategory") == 39:
+                self.ui.horizontalSliderGameEditOptimization.setValue(
+                    self.game.query_game_notes.record(i).value("Note")
+                )
+                self.ui.labelGameEditOptimization.setText(str(self.game.query_game_notes.record(i).value("Note")))
+
+            if self.game.query_game_notes.record(i).value("NoteCategory") == 40:
+                self.ui.horizontalSliderGameEditFun.setValue(
+                    self.game.query_game_notes.record(i).value("Note")
+                )
+                self.ui.labelGameEditFun.setText(str(self.game.query_game_notes.record(i).value("Note")))
+
+    def game_avg_note(self):
+        summary = self.ui.horizontalSliderGameEditGraphics.value() + self.ui.horizontalSliderGameEditSound.value() + \
+                   self.ui.horizontalSliderGameEditPlayability.value() +\
+                   self.ui.horizontalSliderGameEditAmbience.value() +\
+                   self.ui.horizontalSliderGameEditOptimization.value() + self.ui.horizontalSliderGameEditFun.value() +\
+                   self.ui.horizontalSliderGameEditStory.value()
+
+        summary = summary * 10 / 7
+
+        self.ui.progressBarGameEditAvgNote.setValue(int(summary*100))
+        self.ui.progressBarGameEditAvgNote.setFormat("%.02f %%" % summary)
 
 
     class Game:
         def __init__(self, connector, game_id):
-            self.game_data = QSqlQueryModel()
+            self.query_game_data = QSqlQueryModel()
+            self.sql_game_data = 'select * from dbo.Games where id = ' + str(game_id)
+
+            self.query_game_series = QSqlQueryModel()
+            self.sql_game_series = 'select Id, InTypeId, DictValueName from dbo.Dictionaries where DictType = 6'
+
+            self.query_game_type = QSqlQueryModel()
+            self.sql_game_type = 'select Id, InTypeId, DictValueName from dbo.Dictionaries where DictType = 1'
+
+            self.query_game_genre = QSqlQueryModel()
+            self.sql_game_genre = 'select Id, InTypeId, DictValueName from dbo.Dictionaries where DictType = 2'
+
+            self.query_game_notes = QSqlQueryModel()
+            self.sql_game_notes = 'select NoteCategory, Note from dbo.GamesNotes where GameId = ' + str(game_id)
+
+
             self.game_difficulties = QSqlQueryModel()
             self.game_collection = QSqlQueryModel()
             self.game_storage = QSqlQueryModel()
-            self.game_notes = QSqlQueryModel()
-            self.game_series = QSqlQueryModel()
-            self.game_type = QSqlQueryModel()
-            self.game_genre = QSqlQueryModel()
 
 
 
-            #self.game = dict()
-            self.game_data_sql_statement = 'select * from dbo.Games where id = ' + str(game_id)
-
-            self.game_series_sql_statement = 'select Id, InTypeId, DictValueName ' \
-                                             'from dbo.Dictionaries where DictType = 6'
-
-            self.game_type_sql_statement = 'select Id, InTypeId, DictValueName ' \
-                                             'from dbo.Dictionaries where DictType = 1'
-
-            self.game_genre_sql_statement = 'select Id, InTypeId, DictValueName ' \
-                                             'from dbo.Dictionaries where DictType = 2'
-
-            #if connector.db.open():
-            if connector.db.isOpen():
-                self.qry = QSqlQuery(connector.db)
-                self.qry.prepare(self.game_data_sql_statement)
-                self.qry.exec()
-                self.game_data.setQuery(self.qry)
-
-                while self.game_data.canFetchMore():
-                    self.game_data.fetchMore()
-
-            if connector.db.isOpen():
-                self.qry = QSqlQuery(connector.db)
-                self.qry.prepare(self.game_series_sql_statement)
-                self.qry.exec()
-                self.game_series.setQuery(self.qry)
-
-                while self.game_series.canFetchMore():
-                    self.game_series.fetchMore()
-
-            if connector.db.isOpen():
-                self.qry = QSqlQuery(connector.db)
-                self.qry.prepare(self.game_type_sql_statement)
-                self.qry.exec()
-                self.game_type.setQuery(self.qry)
-
-                while self.game_type.canFetchMore():
-                    self.game_type.fetchMore()
-
-            if connector.db.isOpen():
-                self.qry = QSqlQuery(connector.db)
-                self.qry.prepare(self.game_genre_sql_statement)
-                self.qry.exec()
-                self.game_genre.setQuery(self.qry)
-
-                while self.game_genre.canFetchMore():
-                    self.game_genre.fetchMore()
-
-            # for i in
-
-            ### tutaj stworzymy klasę danej gry pobranej z bazy
+            self.query_game_data = connector.sql_query_model_fetch(self.query_game_data, self.sql_game_data)
+            self.query_game_series = connector.sql_query_model_fetch(self.query_game_series, self.sql_game_series)
+            self.query_game_type = connector.sql_query_model_fetch(self.query_game_type, self.sql_game_type)
+            self.query_game_genre = connector.sql_query_model_fetch(self.query_game_genre, self.sql_game_genre)
+            self.query_game_notes = connector.sql_query_model_fetch(self.query_game_notes, self.sql_game_notes)
 
             ### przy zapisie porównujemy czy wszystko jest takie samo z aktualnymi wartościami
 
-
-
-
-
-
-    class AdditionalData:
-        def __init__(self, connector, game_id):
-            self.querymodel = QSqlQueryModel()
-            self.sql_statement = 'select * from dbo.dictionaries'# where GameId = ' + str(game_id)'
-
-            #if connector.db.open():
-            if connector.db.isOpen():
-                self.qry = QSqlQuery(connector.db)
-                self.qry.prepare(self.sql_statement)
-                self.qry.exec()
-
-                self.querymodel.setQuery(self.qry)
-
-
     def game_edit_save(self):
-        self.close()
-        self.destroy()
-        print(self.ui.comboBoxGameEditSeries.count())
-        print(globals())
-
-
-
-
-
-
-
+        pass
 
 
 
@@ -214,5 +214,3 @@ if __name__ == "__main__":
     win = AppGamesManager(connector=db)
     win.show()
     sys.exit(app.exec_())
-
-
