@@ -1,7 +1,7 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QDialog
-from PyQt5.QtSql import QSqlDatabase, QSqlQuery, QSqlQueryModel, QSqlTableModel
-from PyQt5.QtCore import QSortFilterProxyModel
+from PyQt5.QtSql import QSqlDatabase, QSqlQuery, QSqlQueryModel
+from PyQt5.QtCore import QDate
 
 import MainWindow, DialogGameEdit
 import config
@@ -18,7 +18,7 @@ class AppGamesManager(QMainWindow):
         self.ui.actionGames.triggered.connect(self.subwindow_games)
         self.ui.pushButtonGamesEdit.clicked.connect(self.dialog_game_edit)
 
-        self.sql_games_list = 'select * from dbo.Games_View order by ReleaseDate'
+        self.sql_games_list = 'select * from dbo.Games_View where id = 4 order by ReleaseDate'
         self.query_games_list = QSqlQueryModel()
 
         self.connector = connector
@@ -83,12 +83,19 @@ class DGameEdit(QDialog):
         self.ui.horizontalSliderGameEditFun.valueChanged.connect(self.game_avg_note)
         self.ui.pushButtonGameEditDifficultyCompleted.clicked.connect(self.game_difficulty_completed)
         self.ui.pushButtonGameEditDifficultyNotCompleted.clicked.connect(self.game_difficulty_not_completed)
+        self.ui.listWidgetGameEditCollection.currentRowChanged.connect(self.game_storage_filter)
 
         self.game = self.Game(connector, game_id)
 
         self.ui.lineEditGameEditId.setText(str(game_id))
         self.ui.lineEditGameEditTitle.setText(self.game.query_game_data.record(0).value("GameTitle"))
-        # self.ui.dateEditGameEditRelease.setDate(self.game.game_data.record(0).value("ReleaseDate"))
+
+        date = QDate(
+            int(self.game.query_game_data.record(0).value("ReleaseDate")[:4]),
+            int(self.game.query_game_data.record(0).value("ReleaseDate")[5:7]),
+            int(self.game.query_game_data.record(0).value("ReleaseDate")[8:10])
+        )
+        self.ui.dateEditGameEditRelease.setDate(date)
 
         current_index = -1
 
@@ -175,7 +182,6 @@ class DGameEdit(QDialog):
                     self.game.query_game_difficulties.record(i).value("DictValueName")
                 )
 
-
     def game_avg_note(self):
         self.ui.labelGameEditGraphics.setText(str(self.ui.horizontalSliderGameEditGraphics.value()))
         self.ui.labelGameEditSound.setText(str(self.ui.horizontalSliderGameEditSound.value()))
@@ -199,7 +205,6 @@ class DGameEdit(QDialog):
     def game_difficulty_completed(self):
         if bool(self.ui.listWidgetGameEditDifficulty.selectedItems()):
             rows = self.ui.listWidgetGameEditDifficulty.currentRow() + 1
-            print(rows)
             for i in range(rows):
                 self.ui.listWidgetGameEditDifficultyComplete.addItem(
                     self.ui.listWidgetGameEditDifficulty.item(0).text()
@@ -208,7 +213,15 @@ class DGameEdit(QDialog):
                 self.ui.listWidgetGameEditDifficulty.takeItem(0)
 
     def game_difficulty_not_completed(self):
+        if bool(self.ui.listWidgetGameEditDifficultyComplete.selectedItems()):
+            rows = self.ui.listWidgetGameEditDifficultyComplete.currentRow()
+            for i in range(self.ui.listWidgetGameEditDifficultyComplete.count()-1, rows-1, -1):
+                self.ui.listWidgetGameEditDifficulty.insertItem(
+                    0, self.ui.listWidgetGameEditDifficultyComplete.item(i).text()
+                )
+                self.ui.listWidgetGameEditDifficultyComplete.takeItem(i)
 
+    def game_storage_filter(self):
         pass
 
     def game_edit_save(self):
@@ -264,8 +277,9 @@ if __name__ == "__main__":
 
 
 # TODO - storage po stronie bazy
-# TODO - poziomy trudności
+# TODO - filtrowanie listy storage, gdy jest focus na collection odpowiednim
 # TODO - data wydania
+# TODO - zapisywanie i edycja bazy
 # TODO - wywalenie % z progressBara
 # TODO - reformat nr II
 
