@@ -12,6 +12,12 @@ class AppGamesManager(QMainWindow):
         self.showMaximized()
 
         self.ui.actionGames.triggered.connect(self.subwindow_games)
+        self.ui.actionNotes.triggered.connect(self.subwindow_notes)
+
+
+        self.ui.actionTags.triggered.connect(self.subwindow_tags)
+        self.ui.actionStorage.triggered.connect(self.subwindow_storage)
+        self.ui.actionReviews.triggered.connect(self.subwindow_reviews)
         self.ui.pushButtonGamesEdit.clicked.connect(self.dialog_game_edit)
         self.ui.pushButtonGamesAdd.clicked.connect(self.dialog_game_add)
 
@@ -26,6 +32,18 @@ class AppGamesManager(QMainWindow):
         self.ui.mdiArea.addSubWindow(self.ui.subwindowGames)
         self.ui.tableViewGamesList.setModel(self.query_games_list)
         self.ui.subwindowGames.showMaximized()
+
+    def subwindow_notes(self):
+        print("Notes editing to be implemented")
+
+    def subwindow_tags(self):
+        print("Tags editing to be implemented")
+
+    def subwindow_reviews(self):
+        print("Revievs to be implemented")
+
+    def subwindow_storage(self):
+        print("Storage editing to be implemented")
 
     def dialog_game_edit(self):
         index = self.ui.tableViewGamesList.currentIndex()
