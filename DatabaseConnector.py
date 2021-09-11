@@ -11,11 +11,8 @@ class DatabaseConnector:
     def __del__(self):
         self.db.close()
 
-    def sql_query_model_fetch(self, query_model, sql):
+    def sql_query_model_fetch(self, query_model, qry):
         if self.db.isOpen():
-
-            qry = QSqlQuery(self.db)
-            qry.prepare(sql)
             qry.exec_()
 
             query_model.setQuery(qry)
