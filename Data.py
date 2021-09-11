@@ -1,11 +1,10 @@
-from PyQt5.QtSql import QSqlDatabase, QSqlQueryModel
+from PyQt5.QtSql import QSqlDatabase, QSqlQueryModel, QSqlQuery
+
 
 class Data:
-
     class Game:
-        info = ["Data", "Series", "Type", "Genre", "Notes", "Collection", "Storage", "Difficulties", "Review", "Cover"]
         sql = {
-                  "Data": 'select * from dbo.Games where id = :id'
+                  "Data": 'select Id, GameTitle, SeriesId, ReleaseDate, GameAtr as TypeId, Genre as GenreId from dbo.games where id = :id'
                 , "Series": 'select Id, InTypeId, DictValueName from dbo.Dictionaries where DictType = 6 order by DictValueName'
                 , "Type": 'select Id, InTypeId, DictValueName from dbo.Dictionaries where DictType = 1'
                 , "Genre": 'select Id, InTypeId, DictValueName from dbo.Dictionaries where DictType = 2'
@@ -20,11 +19,15 @@ class Data:
         def __init__(self, conn, game_id):
             self.game = dict()
 
-            for i in self.info:
+            for i in self.sql.keys():
+                qry = QSqlQuery(conn.db)
+                qry.prepare(self.sql[i])
+
+                if ":id" in self.sql[i]:
+                    if game_id:
+                        qry.bindValue(':id', game_id)
+                    else:
+                        continue
+
                 self.game[i] = QSqlQueryModel()
-                if ":id" in self.sql[i] & game_id is not None:
-                    self.game[i].bindValue(":id", str(game_id))
-
-                    """ dobry trop, ale jeszcze chwilę trzeba pomyśleć to u góry mi się nie podoba..."""
-
-                self.game[i] = conn.sql_query_model_fetch(self.game[i], self.sql["data"] + str(game_id))
+                self.game[i] = conn.sql_query_model_fetch(self.game[i], qry)

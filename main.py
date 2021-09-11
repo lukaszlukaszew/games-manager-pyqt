@@ -20,9 +20,10 @@ if __name__ == "__main__":
 # TODO - storage po stronie bazy
 # TODO - filtrowanie listy storage, gdy jest focus na collection odpowiednim
 # TODO - zapisywanie i edycja bazy
-# TODO - wywalenie % z progressBara
 # TODO - reformat nr II
 # TODO - dodawanie nowej gry
+
+
 # TODO - dodawanie serii
 # TODO - dodawanie typu
 # TODO - dodawanie gatunku
