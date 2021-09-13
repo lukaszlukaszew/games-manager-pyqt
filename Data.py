@@ -8,7 +8,8 @@ class Data:
                 , "Series": 'select Id, InTypeId, DictValueName from dbo.Dictionaries where DictType = 6 order by DictValueName'
                 , "Type": 'select Id, InTypeId, DictValueName from dbo.Dictionaries where DictType = 1'
                 , "Genre": 'select Id, InTypeId, DictValueName from dbo.Dictionaries where DictType = 2'
-                , "Notes": 'select NoteCategory, Note from dbo.GamesNotes where GameId = :id'
+                , "Notes": 'select d.Id, d.DictValueName, gn.Note from dbo.GamesNotes gn inner join dbo.Dictionaries d on d.Id = gn.NoteCategory where d.DictType = 4 and gn.GameId = :id order by d.InTypeId'
+                #, "GameNotes": 'select NoteCategory, Note from dbo.GamesNotes where GameId = :id'
                 , "Collection": 'select * from dbo.Collection_View where Id = :id'
                 #, "Storage":
                 , "Difficulties": 'select * from dbo.Difficulties_View where Id = :id order by InGameNumber'

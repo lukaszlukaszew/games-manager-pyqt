@@ -1,13 +1,15 @@
-import DialogGameEdit
-from PyQt5.QtWidgets import QDialog, QMessageBox
+import PyQt5
+
+import DialogGameEdit2
+from PyQt5.QtWidgets import QDialog, QMessageBox, QLabel, QSizePolicy, QSlider
 from PyQt5.QtSql import QSqlQuery, QSqlQueryModel
-from PyQt5.QtCore import QDate
+from PyQt5.QtCore import QDate, Qt
 
 
 class DGameEdit(QDialog):
     def __init__(self, conn, data, game_id):
         super().__init__()
-        self.ui = DialogGameEdit.Ui_Dialog()
+        self.ui = DialogGameEdit2.Ui_Dialog()
         self.ui.setupUi(self)
 
         self.conn = conn
@@ -17,20 +19,7 @@ class DGameEdit(QDialog):
         #self.ui.pushButtonGameEditSave.clicked.connect(self.game_edit_save)
         self.ui.pushButtonGameEditCancel.clicked.connect(self.close)
         # TODO jak wywalić % z progress bar?
-        # self.ui.progressBarGameEditAvgNote.setFormat("%.02f %%" % self.ui.progressBarGameEditAvgNote.value())
-        # # TODO jak to przerobić, żeby okienko działało bez względu na liczbę ocen?
-        # self.ui.horizontalSliderGameEditGraphics.valueChanged.connect(self.game_avg_note)
-        # self.ui.horizontalSliderGameEditSound.valueChanged.connect(self.game_avg_note)
-        # self.ui.horizontalSliderGameEditPlayability.valueChanged.connect(self.game_avg_note)
-        # self.ui.horizontalSliderGameEditStory.valueChanged.connect(self.game_avg_note)
-        # self.ui.horizontalSliderGameEditAmbience.valueChanged.connect(self.game_avg_note)
-        # self.ui.horizontalSliderGameEditOptimization.valueChanged.connect(self.game_avg_note)
-        # self.ui.horizontalSliderGameEditFun.valueChanged.connect(self.game_avg_note)
-        # self.ui.pushButtonGameEditDifficultyCompleted.clicked.connect(self.game_difficulty_completed)
-        # self.ui.pushButtonGameEditDifficultyNotCompleted.clicked.connect(self.game_difficulty_not_completed)
-        # self.ui.listWidgetGameEditCollection.currentRowChanged.connect(self.game_storage_filter)
-
-        #if self.game_id:
+        self.ui.progressBarGameEditAvgNote.setFormat("%.02f %%" % self.ui.progressBarGameEditAvgNote.value())
 
         cb = ["Series", "Type", "Genre"]
 
@@ -44,97 +33,63 @@ class DGameEdit(QDialog):
 
             self.ui.__dict__["comboBoxGameEdit" + i].setCurrentIndex(j)
 
+        self.label = "labelGameEdit"
+        self.slider = "horizontalSliderGameEdit"
+
+        for i in range(self.game.game["Notes"].rowCount()):
+            note_category = self.game.game["Notes"].record(i).value("DictValueName")
+            note = str(self.game.game["Notes"].record(i).value("Note")).replace("NULL", "0")
+
+            self.ui.__dict__[self.label + note_category] = QLabel(self.ui.tabGameEditNotes)
+            self.ui.__dict__[self.label + note_category].setText(note_category)
+            self.ui.gridLayoutGameEditNotes.addWidget(self.ui.__dict__[self.label + note_category], i, 0, 1, 1)
+
+            self.ui.__dict__[self.label + note_category + "Note"] = QLabel(self.ui.tabGameEditNotes)
+            self.ui.gridLayoutGameEditNotes.addWidget(self.ui.__dict__[self.label + note_category + "Note"], i, 1, 1, 1)
+
+            self.ui.__dict__[self.slider + note_category] = QSlider(self.ui.tabGameEditNotes)
+            self.ui.__dict__[self.slider + note_category].setMaximum(10)
+            self.ui.__dict__[self.slider + note_category].setPageStep(1)
+            self.ui.__dict__[self.slider + note_category].setOrientation(Qt.Horizontal)
+            self.ui.gridLayoutGameEditNotes.addWidget(self.ui.__dict__[self.slider + note_category], i, 2, 1, 1)
+
+            self.ui.__dict__[self.label + note_category + "Note"].setText(note)
+            self.ui.__dict__[self.slider + note_category].setValue(int(note))
+            self.ui.__dict__[self.slider + note_category].valueChanged.connect(self.game_edit_avg_note)
+
+            # TODO jak rozwiązać kwestię tłumaczenia w powyższym?
+            # TODO jak zrobić, żeby to było ładnie równomiernie rozłożone w pionie, a nie zbite w kupę?
+            # TODO jak podpiąć suwak?
+
+        if self.game_id:
+            self.ui.lineEditGameEditId.setText(str(game_id))
+            self.ui.lineEditGameEditTitle.setText(
+                self.game.game["Data"].record(0).value("GameTitle")
+            )
+            self.ui.dateEditGameEditRelease.setDate(
+                QDate.fromString(self.game.game["Data"].record(0).value("ReleaseDate"), "yyyy-MM-dd")
+            )
+
+    def game_edit_avg_note(self):
+        notes_sum = 0
+        notes_count = 0
+
+        for i in self.ui.__dict__.keys():
+            if i.startswith(self.label) and i.endswith("Note"):
+                type = i.replace(self.label, "").replace("Note", "")
+                self.ui.__dict__[i].setText(str(self.ui.__dict__[self.slider + type].value()))
+                notes_sum += self.ui.__dict__[self.slider + type].value()
+                notes_count += 1
+
+        try:
+            notes_avg = notes_sum * 10 / notes_count
+        except ZeroDivisionError:
+            notes_avg = 0
+
+        self.ui.progressBarGameEditAvgNote.setValue(int(notes_avg * 100))
+        self.ui.progressBarGameEditAvgNote.setFormat("%.02f %%" % notes_avg)
     #
-    #     if not game_id:
-    #
-    #         self.ui.lineEditGameEditId.setText(str(game_id))
-    #         self.ui.lineEditGameEditTitle.setText(self.game.query_game_data.record(0).value("GameTitle"))
-    #
-    #         date = QDate(
-    #             int(self.game.query_game_data.record(0).value("ReleaseDate")[:4]),
-    #             int(self.game.query_game_data.record(0).value("ReleaseDate")[5:7]),
-    #             int(self.game.query_game_data.record(0).value("ReleaseDate")[8:10])
-    #         )
-    #         self.ui.dateEditGameEditRelease.setDate(date)
-    #
-    #         for i in range(self.game.query_game_notes.rowCount()):
-    #             if self.game.query_game_notes.record(i).value("NoteCategory") == 34:
-    #                 self.ui.horizontalSliderGameEditGraphics.setValue(
-    #                     self.game.query_game_notes.record(i).value("Note")
-    #                 )
-    #                 self.ui.labelGameEditGraphics.setText(str(self.game.query_game_notes.record(i).value("Note")))
-    #
-    #             if self.game.query_game_notes.record(i).value("NoteCategory") == 35:
-    #                 self.ui.horizontalSliderGameEditSound.setValue(
-    #                     self.game.query_game_notes.record(i).value("Note")
-    #                 )
-    #                 self.ui.labelGameEditSound.setText(str(self.game.query_game_notes.record(i).value("Note")))
-    #
-    #             if self.game.query_game_notes.record(i).value("NoteCategory") == 36:
-    #                 self.ui.horizontalSliderGameEditPlayability.setValue(
-    #                     self.game.query_game_notes.record(i).value("Note")
-    #                 )
-    #                 self.ui.labelGameEditPlayability.setText(str(self.game.query_game_notes.record(i).value("Note")))
-    #
-    #             if self.game.query_game_notes.record(i).value("NoteCategory") == 37:
-    #                 self.ui.horizontalSliderGameEditStory.setValue(
-    #                     self.game.query_game_notes.record(i).value("Note")
-    #                 )
-    #                 self.ui.labelGameEditStory.setText(str(self.game.query_game_notes.record(i).value("Note")))
-    #
-    #             if self.game.query_game_notes.record(i).value("NoteCategory") == 38:
-    #                 self.ui.horizontalSliderGameEditAmbience.setValue(
-    #                     self.game.query_game_notes.record(i).value("Note")
-    #                 )
-    #                 self.ui.labelGameEditAmbience.setText(str(self.game.query_game_notes.record(i).value("Note")))
-    #
-    #             if self.game.query_game_notes.record(i).value("NoteCategory") == 39:
-    #                 self.ui.horizontalSliderGameEditOptimization.setValue(
-    #                     self.game.query_game_notes.record(i).value("Note")
-    #                 )
-    #                 self.ui.labelGameEditOptimization.setText(str(self.game.query_game_notes.record(i).value("Note")))
-    #
-    #             if self.game.query_game_notes.record(i).value("NoteCategory") == 40:
-    #                 self.ui.horizontalSliderGameEditFun.setValue(
-    #                     self.game.query_game_notes.record(i).value("Note")
-    #                 )
-    #                 self.ui.labelGameEditFun.setText(str(self.game.query_game_notes.record(i).value("Note")))
-    #
-    #         for i in range(self.game.query_game_collection.rowCount()):
-    #             self.ui.listWidgetGameEditCollection.addItem(
-    #                 self.game.query_game_collection.record(i).value("DictValueName"))
-    #
-    #         for i in range(self.game.query_game_difficulties.rowCount()):
-    #             if self.game.query_game_difficulties.record(i).value("Completed"):
-    #                 self.ui.listWidgetGameEditDifficultyComplete.addItem(
-    #                     self.game.query_game_difficulties.record(i).value("DictValueName")
-    #                 )
-    #             else:
-    #                 self.ui.listWidgetGameEditDifficulty.addItem(
-    #                     self.game.query_game_difficulties.record(i).value("DictValueName")
-    #                 )
-    #
-    # def game_avg_note(self):
-    #     self.ui.labelGameEditGraphics.setText(str(self.ui.horizontalSliderGameEditGraphics.value()))
-    #     self.ui.labelGameEditSound.setText(str(self.ui.horizontalSliderGameEditSound.value()))
-    #     self.ui.labelGameEditPlayability.setText(str(self.ui.horizontalSliderGameEditPlayability.value()))
-    #     self.ui.labelGameEditAmbience.setText(str(self.ui.horizontalSliderGameEditAmbience.value()))
-    #     self.ui.labelGameEditOptimization.setText(str(self.ui.horizontalSliderGameEditOptimization.value()))
-    #     self.ui.labelGameEditFun.setText(str(self.ui.horizontalSliderGameEditFun.value()))
-    #     self.ui.labelGameEditStory.setText(str(self.ui.horizontalSliderGameEditStory.value()))
-    #
-    #     summary = self.ui.horizontalSliderGameEditGraphics.value() + self.ui.horizontalSliderGameEditSound.value() + \
-    #               self.ui.horizontalSliderGameEditPlayability.value() + \
-    #               self.ui.horizontalSliderGameEditAmbience.value() + \
-    #               self.ui.horizontalSliderGameEditOptimization.value() + self.ui.horizontalSliderGameEditFun.value() + \
-    #               self.ui.horizontalSliderGameEditStory.value()
-    #
-    #     summary = summary * 10 / 7
-    #
-    #     self.ui.progressBarGameEditAvgNote.setValue(int(summary * 100))
-    #     self.ui.progressBarGameEditAvgNote.setFormat("%.02f %%" % summary)
-    #
-    # def game_difficulty_completed(self):
+    # def game_edit_difficulty_completed(self):
     #     if bool(self.ui.listWidgetGameEditDifficulty.selectedItems()):
     #         rows = self.ui.listWidgetGameEditDifficulty.currentRow() + 1
     #         for i in range(rows):
