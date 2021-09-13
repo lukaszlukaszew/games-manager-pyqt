@@ -156,161 +156,17 @@
        <string>Notes</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_3">
-       <item row="0" column="0">
-        <widget class="QLabel" name="label_10">
-         <property name="text">
-          <string>Graphics</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="2">
-        <widget class="QSlider" name="horizontalSliderGameEditGraphics">
-         <property name="maximum">
-          <number>10</number>
-         </property>
-         <property name="pageStep">
-          <number>1</number>
-         </property>
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="label_11">
-         <property name="text">
-          <string>Sound</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="2">
-        <widget class="QSlider" name="horizontalSliderGameEditSound">
-         <property name="maximum">
-          <number>10</number>
-         </property>
-         <property name="pageStep">
-          <number>1</number>
-         </property>
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="label_16">
-         <property name="text">
-          <string>Optimization</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="2">
-        <widget class="QSlider" name="horizontalSliderGameEditOptimization">
-         <property name="maximum">
-          <number>10</number>
-         </property>
-         <property name="pageStep">
-          <number>1</number>
-         </property>
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-        </widget>
+       <item row="0" column="0" colspan="2">
+        <layout class="QGridLayout" name="gridLayoutGameEditNotes"/>
        </item>
        <item row="3" column="0">
-        <widget class="QLabel" name="label_15">
-         <property name="text">
-          <string>Ambience</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="2">
-        <widget class="QSlider" name="horizontalSliderGameEditAmbience">
-         <property name="maximum">
-          <number>10</number>
-         </property>
-         <property name="pageStep">
-          <number>1</number>
-         </property>
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="0">
-        <widget class="QLabel" name="label_12">
-         <property name="text">
-          <string>Playability</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="2">
-        <widget class="QSlider" name="horizontalSliderGameEditPlayability">
-         <property name="maximum">
-          <number>10</number>
-         </property>
-         <property name="pageStep">
-          <number>1</number>
-         </property>
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="0">
-        <widget class="QLabel" name="label_17">
-         <property name="text">
-          <string>&quot;FUN&quot;</string>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="2">
-        <widget class="QSlider" name="horizontalSliderGameEditFun">
-         <property name="maximum">
-          <number>10</number>
-         </property>
-         <property name="pageStep">
-          <number>1</number>
-         </property>
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-        </widget>
-       </item>
-       <item row="6" column="0">
-        <widget class="QLabel" name="label_13">
-         <property name="text">
-          <string>Story</string>
-         </property>
-        </widget>
-       </item>
-       <item row="6" column="2">
-        <widget class="QSlider" name="horizontalSliderGameEditStory">
-         <property name="maximum">
-          <number>10</number>
-         </property>
-         <property name="pageStep">
-          <number>1</number>
-         </property>
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-        </widget>
-       </item>
-       <item row="7" column="0" colspan="3">
-        <widget class="Line" name="line">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-        </widget>
-       </item>
-       <item row="8" column="0">
         <widget class="QLabel" name="label_14">
          <property name="text">
           <string>Average note</string>
          </property>
         </widget>
        </item>
-       <item row="8" column="2">
+       <item row="3" column="1">
         <widget class="QProgressBar" name="progressBarGameEditAvgNote">
          <property name="maximum">
           <number>10000</number>
@@ -323,157 +179,20 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="1">
-        <widget class="QLabel" name="labelGameEditGraphics">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
+       <item row="0" column="2">
+        <widget class="QScrollBar" name="verticalScrollBar">
+         <property name="enabled">
+          <bool>true</bool>
          </property>
-         <property name="minimumSize">
-          <size>
-           <width>30</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
          </property>
         </widget>
        </item>
-       <item row="1" column="1">
-        <widget class="QLabel" name="labelGameEditSound">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>30</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
-        <widget class="QLabel" name="labelGameEditOptimization">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>30</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="1">
-        <widget class="QLabel" name="labelGameEditAmbience">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>30</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="1">
-        <widget class="QLabel" name="labelGameEditPlayability">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>30</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="1">
-        <widget class="QLabel" name="labelGameEditFun">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>30</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item row="6" column="1">
-        <widget class="QLabel" name="labelGameEditStory">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>30</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       <item row="1" column="0" colspan="3">
+        <widget class="Line" name="line">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
          </property>
         </widget>
        </item>
@@ -586,6 +305,23 @@
           <string>&gt;</string>
          </property>
         </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tabGameEditReview">
+      <attribute name="title">
+       <string>Review</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_5">
+       <item row="0" column="1">
+        <widget class="QScrollBar" name="verticalScrollBar_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QTextEdit" name="textEditGameEditReview"/>
        </item>
       </layout>
      </widget>

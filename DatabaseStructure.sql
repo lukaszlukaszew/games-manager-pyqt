@@ -54,6 +54,18 @@ CREATE TABLE GamesCollection (
 	CollectionCategory int FOREIGN KEY REFERENCES Dictionaries(Id) NOT NULL
 	);
 
+CREATE TABLE GamesStorage (
+	Id int IDENTITY (1,1) PRIMARY KEY NOT NULL,
+	CollectionId int FOREIGN KEY REFERENCES Dictionaries(Id) NOT NULL,
+	StorageName varchar(max) NOT NULL,
+	)
+
+CREATE TABLE GamesCopies (
+	Id int IDENTITY (1,1) PRIMARY KEY NOT NULL,
+	GameId int FOREIGN KEY REFERENCES Games(Id) NOT NULL,
+	StorageId int FOREIGN KEY REFERENCES GamesStorage(Id) NOT NULL
+	)
+
 GO
 
 

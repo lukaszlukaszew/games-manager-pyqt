@@ -1,26 +1,64 @@
-import PyQt5
-
-import DialogGameEdit2
-from PyQt5.QtWidgets import QDialog, QMessageBox, QLabel, QSizePolicy, QSlider
+import DialogGameEdit
+from PyQt5.QtWidgets import QDialog, QMessageBox, QLabel, QSizePolicy, QSlider, QInputDialog
 from PyQt5.QtSql import QSqlQuery, QSqlQueryModel
 from PyQt5.QtCore import QDate, Qt
 
+# TODO wywalić z całego okienka fragment "GameEdit"
 
 class DGameEdit(QDialog):
     def __init__(self, conn, data, game_id):
         super().__init__()
-        self.ui = DialogGameEdit2.Ui_Dialog()
+        self.ui = DialogGameEdit.Ui_Dialog()
         self.ui.setupUi(self)
 
         self.conn = conn
         self.game_id = game_id
+        self.label = "labelGameEdit"
+        self.slider = "horizontalSliderGameEdit"
+        self.button = "pushButtonGameEdit"
         self.game = data.Game(self.conn, game_id)
 
-        #self.ui.pushButtonGameEditSave.clicked.connect(self.game_edit_save)
-        self.ui.pushButtonGameEditCancel.clicked.connect(self.close)
-        # TODO jak wywalić % z progress bar?
-        self.ui.progressBarGameEditAvgNote.setFormat("%.02f %%" % self.ui.progressBarGameEditAvgNote.value())
+        self.buttons = {
+            # "Save": "game_edit_save",
+            "Cancel": "close",
+            # "CoverAdd": "game_edit_add_cover",
+            # "CoverDelete": "game_edit_delete_cover",
+            # "DifficultyAdd": "",
+            # "DifficultyDelete":"",
+            "DifficultyCompleted": "game_edit_difficulty_completed",
+            "DifficultyNotCompleted": "game_edit_difficulty_not_completed",
+            # "CollectionAdd": "",
+            # "CollectionDelete": "",
+            "SeriesAdd": "game_edit_add_dict_value",
+            # "TypeAdd": "game_edit_add_dict_value",
+            # "GenreAdd": "game_edit_add_dict_value",
+            # "StorageAdd": "",
+            # "StorageDelete": "",
 
+
+        }
+
+        for k, v in self.buttons.items():
+            self.ui.__dict__[self.button + k].clicked.connect(getattr(self, v))
+
+        self.ui.progressBarGameEditAvgNote.setFormat(str(self.ui.progressBarGameEditAvgNote.value()).format(".2f"))
+
+        self.game_edit_dictionaries()
+
+        if self.game_id:
+            self.game_edit_notes()
+            self.game_edit_basic_info()
+            self.game_edit_collection()
+            self.game_edit_difficulties()
+
+    def game_edit_basic_info(self):
+        self.ui.lineEditGameEditId.setText(str(self.game_id))
+        self.ui.lineEditGameEditTitle.setText(self.game.game["Data"].record(0).value("GameTitle"))
+        self.ui.dateEditGameEditRelease.setDate(
+            QDate.fromString(self.game.game["Data"].record(0).value("ReleaseDate"), "yyyy-MM-dd")
+        )
+
+    def game_edit_dictionaries(self):
         cb = ["Series", "Type", "Genre"]
 
         for i in cb:
@@ -33,9 +71,7 @@ class DGameEdit(QDialog):
 
             self.ui.__dict__["comboBoxGameEdit" + i].setCurrentIndex(j)
 
-        self.label = "labelGameEdit"
-        self.slider = "horizontalSliderGameEdit"
-
+    def game_edit_notes(self):
         for i in range(self.game.game["Notes"].rowCount()):
             note_category = self.game.game["Notes"].record(i).value("DictValueName")
             note = str(self.game.game["Notes"].record(i).value("Note")).replace("NULL", "0")
@@ -54,21 +90,31 @@ class DGameEdit(QDialog):
             self.ui.gridLayoutGameEditNotes.addWidget(self.ui.__dict__[self.slider + note_category], i, 2, 1, 1)
 
             self.ui.__dict__[self.label + note_category + "Note"].setText(note)
-            self.ui.__dict__[self.slider + note_category].setValue(int(note))
             self.ui.__dict__[self.slider + note_category].valueChanged.connect(self.game_edit_avg_note)
+            self.ui.__dict__[self.slider + note_category].setValue(int(note))
 
             # TODO jak rozwiązać kwestię tłumaczenia w powyższym?
             # TODO jak zrobić, żeby to było ładnie równomiernie rozłożone w pionie, a nie zbite w kupę?
+            # TODO jak zrobić, żeby oceny w label nie wpływały na rozmiar sliderów?
             # TODO jak podpiąć suwak?
 
-        if self.game_id:
-            self.ui.lineEditGameEditId.setText(str(game_id))
-            self.ui.lineEditGameEditTitle.setText(
-                self.game.game["Data"].record(0).value("GameTitle")
-            )
-            self.ui.dateEditGameEditRelease.setDate(
-                QDate.fromString(self.game.game["Data"].record(0).value("ReleaseDate"), "yyyy-MM-dd")
-            )
+    def game_edit_difficulties(self):
+        for i in range(self.game.game["Difficulties"].rowCount()):
+            if self.game.game["Difficulties"].record(i).value("Completed"):
+                self.ui.listWidgetGameEditDifficultyComplete.addItem(
+                    self.game.game["Difficulties"].record(i).value("DictValueName")
+                )
+            else:
+                self.ui.listWidgetGameEditDifficulty.addItem(
+                    self.game.game["Difficulties"].record(i).value("DictValueName")
+                )
+
+    def game_edit_collection(self):
+        for i in range(self.game.game["Collection"].rowCount()):
+            self.ui.listWidgetGameEditCollection.addItem(
+                self.game.game["Collection"].record(i).value("DictValueName"))
+
+        # TODO dolozyc Storage
 
     def game_edit_avg_note(self):
         notes_sum = 0
@@ -82,36 +128,73 @@ class DGameEdit(QDialog):
                 notes_count += 1
 
         try:
-            notes_avg = notes_sum * 10 / notes_count
+            notes_avg = notes_sum / notes_count
         except ZeroDivisionError:
             notes_avg = 0
 
-        self.ui.progressBarGameEditAvgNote.setValue(int(notes_avg * 100))
-        self.ui.progressBarGameEditAvgNote.setFormat("%.02f %%" % notes_avg)
-    #
-    # def game_edit_difficulty_completed(self):
-    #     if bool(self.ui.listWidgetGameEditDifficulty.selectedItems()):
-    #         rows = self.ui.listWidgetGameEditDifficulty.currentRow() + 1
-    #         for i in range(rows):
-    #             self.ui.listWidgetGameEditDifficultyComplete.addItem(
-    #                 self.ui.listWidgetGameEditDifficulty.item(0).text()
-    #             )
-    #
-    #             self.ui.listWidgetGameEditDifficulty.takeItem(0)
-    #
-    # def game_difficulty_not_completed(self):
-    #     if bool(self.ui.listWidgetGameEditDifficultyComplete.selectedItems()):
-    #         rows = self.ui.listWidgetGameEditDifficultyComplete.currentRow()
-    #         for i in range(self.ui.listWidgetGameEditDifficultyComplete.count() - 1, rows - 1, -1):
-    #             self.ui.listWidgetGameEditDifficulty.insertItem(
-    #                 0, self.ui.listWidgetGameEditDifficultyComplete.item(i).text()
-    #             )
-    #             self.ui.listWidgetGameEditDifficultyComplete.takeItem(i)
-    #
-    # def game_storage_filter(self):
-    #     pass
-    #
-    #
+        self.ui.progressBarGameEditAvgNote.setValue(int(notes_avg * 1000))
+        self.ui.progressBarGameEditAvgNote.setFormat(str(round(notes_avg, 2)).format(".2f"))
+
+    def game_edit_difficulty_completed(self):
+        if bool(self.ui.listWidgetGameEditDifficulty.selectedItems()):
+            rows = self.ui.listWidgetGameEditDifficulty.currentRow() + 1
+            for i in range(rows):
+                self.ui.listWidgetGameEditDifficultyComplete.addItem(
+                    self.ui.listWidgetGameEditDifficulty.item(0).text()
+                )
+
+                self.ui.listWidgetGameEditDifficulty.takeItem(0)
+
+    def game_edit_difficulty_not_completed(self):
+        if bool(self.ui.listWidgetGameEditDifficultyComplete.selectedItems()):
+            rows = self.ui.listWidgetGameEditDifficultyComplete.currentRow()
+            for i in range(self.ui.listWidgetGameEditDifficultyComplete.count() - 1, rows - 1, -1):
+                self.ui.listWidgetGameEditDifficulty.insertItem(
+                    0, self.ui.listWidgetGameEditDifficultyComplete.item(i).text()
+                )
+                self.ui.listWidgetGameEditDifficultyComplete.takeItem(i)
+
+    def game_edit_storage_filter(self):
+        pass
+
+    def game_edit_add_cover(self):
+        # otwieramy okienko do wyboru obrazu
+        # wczytujemy obraz
+        # przerabiamy format obrazu
+        # podczas zapisu:
+            # zapisujemy obraz w bazie
+            # ustawiamy obraz w odpowiednim polu
+            # zamykamy okienko
+        pass
+
+    def game_edit_delete_cover(self):
+        # wyświetlamy komunikat, czy na pewno
+        # podczas zapisu
+            # usuwamy obraz z bazy
+            # usuwamy obraz z odpowiedniego pola
+        pass
+
+    def game_edit_add_dict_value(self):
+        # okienko, które wie jaki słownik ma edytować
+        # wpisujemy wartość, zapisujemy lub wychodzimy
+        # podczas zapisu:
+            # dodajemy odpowiednią wartość do bazy
+            # ponownie pobieramy model z bazy
+            # usuwamy wszystkie itemy odpowiedniego comboboxa
+            # ponownie dodajemy itemy do comboboxa
+            # zamykamy okienko
+        pass
+
+    def game_edit_add_collection(self):
+        pass
+
+    def game_edit_add_storage(self):
+        # sprawdzamy na czym jest focus i wybieramy odpowiednią listę
+        pass
+
+    def game_edit_add_difficulty(self):
+        pass
+
     # def game_edit_save(self):
     #
     #     check = [self.ui.lineEditGameEditTitle.text(), self.ui.comboBoxGameEditType.currentText(),
@@ -156,65 +239,4 @@ class DGameEdit(QDialog):
     #             QMessageBox.warning(None, "Database Error",
     #                                 query.lastError().text())
     #
-    #     """ dobra ściągawka """
-    #     # db = QSqlDatabase.addDatabase("QMYSQL")
-    #     #
-    #     # db.setHostName("localhost")
-    #     # db.setDatabaseName("vista")
-    #     # db.setUserName("root")
-    #     # db.setPassword("secret")
-    #     #
-    #     # if (db.open() == False):
-    #     #     QMessageBox.critical(None, "Database Error",
-    #     #                          db.lastError().text())
-    #     # query = QSqlQuery()
-    #     # query.prepare("INSERT INTO user (fio, sex,polis,document,birtday) "
-    #     #               "VALUES (:fio, :sex,:polis,:document,:birtday)");
-    #     # query.bindValue(":fio", fio);
-    #     # query.bindValue(":sex", sex);
-    #     # query.bindValue(":polis", polis);
-    #     # query.bindValue(":document", document);
-    #     # query.bindValue(":birtday", birtday);
-    #     # query.exec_();
-    #
-    # class Game:
-    #     def __init__(self, conn, game_id):
-    #         if game_id is not None:
-    #             self.query_game_data = QSqlQueryModel()
-    #             self.sql_game_data = 'select * from dbo.Games where id = ' + str(game_id)
-    #
-    #             self.query_game_notes = QSqlQueryModel()
-    #             self.sql_game_notes = 'select NoteCategory, Note from dbo.GamesNotes where GameId = ' + str(game_id)
-    #
-    #             self.query_game_collection = QSqlQueryModel()
-    #             self.sql_game_collection = 'select * from dbo.Collection_View where Id = ' + str(game_id)
-    #
-    #             self.query_game_difficulties = QSqlQueryModel()
-    #             self.sql_game_difficulties = 'select * from dbo.Difficulties_View where Id = ' + str(
-    #                 game_id) + 'order by InGameNumber'
-    #
-    #             self.query_game_data = conn.sql_query_model_fetch(self.query_game_data, self.sql_game_data)
-    #             self.query_game_notes = conn.sql_query_model_fetch(self.query_game_notes, self.sql_game_notes)
-    #             self.query_game_collection = conn.sql_query_model_fetch(self.query_game_collection,
-    #                                                                          self.sql_game_collection)
-    #             self.query_game_difficulties = conn.sql_query_model_fetch(self.query_game_difficulties,
-    #                                                                            self.sql_game_difficulties)
-    #
-    #         self.query_game_series = QSqlQueryModel()
-    #         self.sql_game_series = 'select Id, InTypeId, DictValueName from dbo.Dictionaries where DictType = 6 order by DictValueName'
-    #
-    #         self.query_game_type = QSqlQueryModel()
-    #         self.sql_game_type = 'select Id, InTypeId, DictValueName from dbo.Dictionaries where DictType = 1'
-    #
-    #         self.query_game_genre = QSqlQueryModel()
-    #         self.sql_game_genre = 'select Id, InTypeId, DictValueName from dbo.Dictionaries where DictType = 2'
-    #
-    #         # self.game_storage = QSqlQueryModel()
-    #
-    #         self.query_game_series = conn.sql_query_model_fetch(self.query_game_series, self.sql_game_series)
-    #         self.query_game_type = conn.sql_query_model_fetch(self.query_game_type, self.sql_game_type)
-    #         self.query_game_genre = conn.sql_query_model_fetch(self.query_game_genre, self.sql_game_genre)
-    #
     #         ### przy zapisie porównujemy czy wszystko jest takie samo z aktualnymi wartościami, ale po stronie bazy
-    #
-    #
