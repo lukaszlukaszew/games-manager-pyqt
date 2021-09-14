@@ -1,9 +1,12 @@
 import DialogGameEdit
 from PyQt5.QtWidgets import QDialog, QMessageBox, QLabel, QSizePolicy, QSlider, QInputDialog
-from PyQt5.QtSql import QSqlQuery, QSqlQueryModel
+from PyQt5.QtSql import QSqlQuery, QSqlQueryModel, QSqlRelationalTableModel
 from PyQt5.QtCore import QDate, Qt
 
+
 # TODO wywalić z całego okienka fragment "GameEdit"
+# TODO zrobic, zeby dzialalo bez game_id
+
 
 class DGameEdit(QDialog):
     def __init__(self, conn, data, game_id):
@@ -35,46 +38,47 @@ class DGameEdit(QDialog):
             # "StorageAdd": "",
             # "StorageDelete": "",
 
-
         }
 
         for k, v in self.buttons.items():
             self.ui.__dict__[self.button + k].clicked.connect(getattr(self, v))
 
+        self.ui.listWidgetGameEditCollection.currentRowChanged.connect(self.game_edit_storage_filter)
+
         self.ui.progressBarGameEditAvgNote.setFormat(str(self.ui.progressBarGameEditAvgNote.value()).format(".2f"))
 
         self.game_edit_dictionaries()
+        self.game_edit_difficulties()
+        self.game_edit_collection()
+        self.game_edit_notes()
 
         if self.game_id:
-            self.game_edit_notes()
             self.game_edit_basic_info()
-            self.game_edit_collection()
-            self.game_edit_difficulties()
 
     def game_edit_basic_info(self):
         self.ui.lineEditGameEditId.setText(str(self.game_id))
-        self.ui.lineEditGameEditTitle.setText(self.game.game["Data"].record(0).value("GameTitle"))
+        self.ui.lineEditGameEditTitle.setText(self.game.game["Data"].record(0).value("Name"))
         self.ui.dateEditGameEditRelease.setDate(
-            QDate.fromString(self.game.game["Data"].record(0).value("ReleaseDate"), "yyyy-MM-dd")
+            QDate.fromString(self.game.game["Data"].record(0).value("Release_date"), "yyyy-MM-dd")
         )
 
     def game_edit_dictionaries(self):
-        cb = ["Series", "Type", "Genre"]
+        cb = ["Series", "Category", "Genre"]
 
         for i in cb:
             j = -1
             for k in range(self.game.game[i].rowCount()):
-                self.ui.__dict__["comboBoxGameEdit" + i].addItem(self.game.game[i].record(k).value("DictValueName"))
+                self.ui.__dict__["comboBoxGameEdit" + i].addItem(self.game.game[i].record(k).value("Name"))
                 if self.game_id:
-                    if self.game.game[i].record(k).value("Id") == self.game.game["Data"].record(0).value(i+"Id"):
+                    if self.game.game[i].record(k).value("Id") == self.game.game["Data"].record(0).value(i + "_id"):
                         j = k
 
             self.ui.__dict__["comboBoxGameEdit" + i].setCurrentIndex(j)
 
     def game_edit_notes(self):
         for i in range(self.game.game["Notes"].rowCount()):
-            note_category = self.game.game["Notes"].record(i).value("DictValueName")
-            note = str(self.game.game["Notes"].record(i).value("Note")).replace("NULL", "0")
+            note_category = self.game.game["Notes"].record(i).value("Name")
+            note = str(self.game.game["Notes"].record(i).value("Note"))
 
             self.ui.__dict__[self.label + note_category] = QLabel(self.ui.tabGameEditNotes)
             self.ui.__dict__[self.label + note_category].setText(note_category)
@@ -100,21 +104,31 @@ class DGameEdit(QDialog):
 
     def game_edit_difficulties(self):
         for i in range(self.game.game["Difficulties"].rowCount()):
-            if self.game.game["Difficulties"].record(i).value("Completed"):
-                self.ui.listWidgetGameEditDifficultyComplete.addItem(
-                    self.game.game["Difficulties"].record(i).value("DictValueName")
-                )
-            else:
-                self.ui.listWidgetGameEditDifficulty.addItem(
-                    self.game.game["Difficulties"].record(i).value("DictValueName")
-                )
+            if self.game.game["Difficulties"].record(i).value("Game_id"):
+                if self.game.game["Difficulties"].record(i).value("Completed"):
+                    self.ui.listWidgetGameEditDifficultyComplete.addItem(
+                        self.game.game["Difficulties"].record(i).value("Name")
+                    )
+                else:
+                    self.ui.listWidgetGameEditDifficulty.addItem(
+                        self.game.game["Difficulties"].record(i).value("Name")
+                    )
 
     def game_edit_collection(self):
+        collection = list()
         for i in range(self.game.game["Collection"].rowCount()):
-            self.ui.listWidgetGameEditCollection.addItem(
-                self.game.game["Collection"].record(i).value("DictValueName"))
-
-        # TODO dolozyc Storage
+            if self.game.game["Collection"].record(i).value("Collection_name") not in collection and \
+                    self.game.game["Collection"].record(i).value("Game_id"):
+                self.ui.listWidgetGameEditCollection.addItem(
+                    self.game.game["Collection"].record(i).value("Name")
+                )
+                collection.append(self.game.game["Collection"].record(i).value("Collection_name"))
+                for j in range(self.game.game["Storage"].rowCount()):
+                    if self.game.game["Storage"].record(j).value("Id") == \
+                            self.game.game["Collection"].record(i).value("Id"):
+                        self.ui.listWidgetGameEditStorage.addItem(
+                            self.game.game["Storage"].record(i).value("Name")
+                        )
 
     def game_edit_avg_note(self):
         notes_sum = 0
@@ -122,9 +136,9 @@ class DGameEdit(QDialog):
 
         for i in self.ui.__dict__.keys():
             if i.startswith(self.label) and i.endswith("Note"):
-                type = i.replace(self.label, "").replace("Note", "")
-                self.ui.__dict__[i].setText(str(self.ui.__dict__[self.slider + type].value()))
-                notes_sum += self.ui.__dict__[self.slider + type].value()
+                itype = i.replace(self.label, "").replace("Note", "")
+                self.ui.__dict__[i].setText(str(self.ui.__dict__[self.slider + itype].value()))
+                notes_sum += self.ui.__dict__[self.slider + itype].value()
                 notes_count += 1
 
         try:
@@ -162,27 +176,27 @@ class DGameEdit(QDialog):
         # wczytujemy obraz
         # przerabiamy format obrazu
         # podczas zapisu:
-            # zapisujemy obraz w bazie
-            # ustawiamy obraz w odpowiednim polu
-            # zamykamy okienko
+        # zapisujemy obraz w bazie
+        # ustawiamy obraz w odpowiednim polu
+        # zamykamy okienko
         pass
 
     def game_edit_delete_cover(self):
         # wyświetlamy komunikat, czy na pewno
         # podczas zapisu
-            # usuwamy obraz z bazy
-            # usuwamy obraz z odpowiedniego pola
+        # usuwamy obraz z bazy
+        # usuwamy obraz z odpowiedniego pola
         pass
 
     def game_edit_add_dict_value(self):
         # okienko, które wie jaki słownik ma edytować
         # wpisujemy wartość, zapisujemy lub wychodzimy
         # podczas zapisu:
-            # dodajemy odpowiednią wartość do bazy
-            # ponownie pobieramy model z bazy
-            # usuwamy wszystkie itemy odpowiedniego comboboxa
-            # ponownie dodajemy itemy do comboboxa
-            # zamykamy okienko
+        # dodajemy odpowiednią wartość do bazy
+        # ponownie pobieramy model z bazy
+        # usuwamy wszystkie itemy odpowiedniego comboboxa
+        # ponownie dodajemy itemy do comboboxa
+        # zamykamy okienko
         pass
 
     def game_edit_add_collection(self):
@@ -195,7 +209,8 @@ class DGameEdit(QDialog):
     def game_edit_add_difficulty(self):
         pass
 
-    # def game_edit_save(self):
+    def game_edit_save(self):
+        pass
     #
     #     check = [self.ui.lineEditGameEditTitle.text(), self.ui.comboBoxGameEditType.currentText(),
     #              self.ui.comboBoxGameEditGenre.currentText()]
@@ -207,6 +222,8 @@ class DGameEdit(QDialog):
     #
     #     if all(check) and self.conn.db.isOpen():
     #         query = QSqlQuery()
+
+    # ok, to tutaj przejdzie, ale nie w pobieraniu
     #         query.prepare(
     #             "EXEC DodajGre @title = :title, @gameatrid = :atr, @ReleaseDate = :date, @typ = 2, @genreid = :genre, @seriesId = :series")
     #
