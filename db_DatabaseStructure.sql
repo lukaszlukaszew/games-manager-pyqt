@@ -4,6 +4,7 @@ CREATE DATABASE GAMESTEMP
 GO
 
 USE GAMESTEMP
+
 GO
 
 -- TABLES
@@ -149,3 +150,4 @@ FROM dbo.GamesAttributesDifficulties gad
 	INNER JOIN dbo.GamesDictionaryDifficulties gdd on gdd.Id = gad.Dificulty_id
 
 GO
+

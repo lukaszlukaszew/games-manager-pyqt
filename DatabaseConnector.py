@@ -25,4 +25,3 @@ class DatabaseConnector:
 
         return query_model
 
-

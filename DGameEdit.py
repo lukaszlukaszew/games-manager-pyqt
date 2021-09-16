@@ -2,7 +2,7 @@ from PyQt5 import QtCore
 
 import DialogGameEdit
 from PyQt5.QtWidgets import QDialog, QMessageBox, QLabel, QSizePolicy, QSlider, QInputDialog
-from PyQt5.QtSql import QSqlQuery, QSqlQueryModel
+from PyQt5.QtSql import QSqlQuery, QSqlQueryModel, QSqlRelationalTableModel
 from PyQt5.QtCore import QDate, Qt
 
 
@@ -44,6 +44,7 @@ class DGameEdit(QDialog):
             "StorageToList": "game_edit_add_from_dict_value",
             "StorageDelete": "game_edit_remove_from_list",
 
+
         }
 
         for k, v in self.buttons.items():
@@ -83,7 +84,6 @@ class DGameEdit(QDialog):
 
     def game_edit_notes(self):
         for i in range(self.game.game["Notes"].rowCount()):
-            print(self.game.game["Notes"].record(i).value("Game_id"))
             note_category = self.game.game["Notes"].record(i).value("Name")
             note = str(self.game.game["Notes"].record(i).value("Note"))
 
@@ -354,4 +354,3 @@ class DGameEdit(QDialog):
         else:
             QMessageBox.warning(None, "Data Error",
                                 "You forgot about parameter")
-
