@@ -21,10 +21,6 @@ if __name__ == "__main__":
 # TODO - filtrowanie listy storage, gdy jest focus na collection odpowiednim
 # TODO - zapisywanie i edycja bazy
 # TODO - dodawanie nowej gry
-# TODO - dodawanie serii
-# TODO - dodawanie typu
-# TODO - dodawanie gatunku
-# TODO - dodawanie kolekcji
 # TODO - dodawanie storage
 # TODO - dodawanie poziomu trudności (zabezpieczneie, żeby nie dodawać tego samego)
 # TODO - dodawanie okładki

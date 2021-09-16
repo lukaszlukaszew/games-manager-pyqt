@@ -14,24 +14,21 @@ class AppGamesManager(QMainWindow):
         self.ui.actionGames.triggered.connect(self.subwindow_games)
         self.ui.actionNotes.triggered.connect(self.subwindow_notes)
 
-
         self.ui.actionTags.triggered.connect(self.subwindow_tags)
         self.ui.actionStorage.triggered.connect(self.subwindow_storage)
         self.ui.actionReviews.triggered.connect(self.subwindow_reviews)
         self.ui.pushButtonGamesEdit.clicked.connect(self.dialog_game_edit)
         self.ui.pushButtonGamesAdd.clicked.connect(self.dialog_game_add)
 
-        self.sql_games_list = 'select * from dbo.Games_View where id = 4 order by ReleaseDate'
+        self.sql_games_list = 'SELECT * FROM dbo.GamesMainView --WHERE Id = 355'
         self.query_games_list = QSqlQueryModel()
 
         self.conn = conn
         self.data = data
 
     def subwindow_games(self):
-
         qry = QSqlQuery(self.conn.db)
         qry.prepare(self.sql_games_list)
-
 
         self.query_games_list = self.conn.sql_query_model_fetch(self.query_games_list, qry)
 
@@ -60,4 +57,3 @@ class AppGamesManager(QMainWindow):
     def dialog_game_add(self):
         dialog = DGameEdit(self.conn, self.data, False)
         dialog.exec_()
-
