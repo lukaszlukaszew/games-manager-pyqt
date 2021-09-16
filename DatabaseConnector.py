@@ -24,3 +24,5 @@ class DatabaseConnector:
             print("Database not connected")
 
         return query_model
+
+

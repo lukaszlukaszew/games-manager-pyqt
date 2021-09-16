@@ -1,6 +1,8 @@
+from PyQt5 import QtCore
+
 import DialogGameEdit
 from PyQt5.QtWidgets import QDialog, QMessageBox, QLabel, QSizePolicy, QSlider, QInputDialog
-from PyQt5.QtSql import QSqlQuery, QSqlQueryModel, QSqlRelationalTableModel
+from PyQt5.QtSql import QSqlQuery, QSqlQueryModel
 from PyQt5.QtCore import QDate, Qt
 
 
@@ -26,17 +28,21 @@ class DGameEdit(QDialog):
             "Cancel": "close",
             # "CoverAdd": "game_edit_add_cover",
             # "CoverDelete": "game_edit_delete_cover",
-            # "DifficultyAdd": "",
-            # "DifficultyDelete":"",
-            "DifficultyCompleted": "game_edit_difficulty_completed",
-            "DifficultyNotCompleted": "game_edit_difficulty_not_completed",
-            # "CollectionAdd": "",
-            # "CollectionDelete": "",
+            "DifficultiesAdd": "game_edit_add_dict_value",
+            "DifficultiesToList": "game_edit_add_from_dict_value",
+            "DifficultiesDelete":"game_edit_remove_from_list",
+            "DifficultiesCompleted": "game_edit_difficulty_completed",
+            "DifficultiesNotCompleted": "game_edit_difficulty_not_completed",
+            "CollectionAdd": "game_edit_add_dict_value",
+            "CollectionToList": "game_edit_add_from_dict_value",
+            "CollectionDelete": "game_edit_remove_from_list",
             "SeriesAdd": "game_edit_add_dict_value",
-            # "TypeAdd": "game_edit_add_dict_value",
-            # "GenreAdd": "game_edit_add_dict_value",
-            # "StorageAdd": "",
-            # "StorageDelete": "",
+            "CategoryAdd": "game_edit_add_dict_value",
+            "GenreAdd": "game_edit_add_dict_value",
+            "StorageAdd": "game_edit_add_dict_value",
+            "NotesAdd" : "game_edit_add_dict_value",
+            "StorageToList": "game_edit_add_from_dict_value",
+            "StorageDelete": "game_edit_remove_from_list",
 
         }
 
@@ -106,11 +112,11 @@ class DGameEdit(QDialog):
         for i in range(self.game.game["Difficulties"].rowCount()):
             if self.game.game["Difficulties"].record(i).value("Game_id"):
                 if self.game.game["Difficulties"].record(i).value("Completed"):
-                    self.ui.listWidgetGameEditDifficultyComplete.addItem(
+                    self.ui.listWidgetGameEditDifficultiesComplete.addItem(
                         self.game.game["Difficulties"].record(i).value("Name")
                     )
                 else:
-                    self.ui.listWidgetGameEditDifficulty.addItem(
+                    self.ui.listWidgetGameEditDifficulties.addItem(
                         self.game.game["Difficulties"].record(i).value("Name")
                     )
 
@@ -150,25 +156,26 @@ class DGameEdit(QDialog):
         self.ui.progressBarGameEditAvgNote.setFormat(str(round(notes_avg, 2)).format(".2f"))
 
     def game_edit_difficulty_completed(self):
-        if bool(self.ui.listWidgetGameEditDifficulty.selectedItems()):
-            rows = self.ui.listWidgetGameEditDifficulty.currentRow() + 1
+        if bool(self.ui.listWidgetGameEditDifficulties.selectedItems()):
+            rows = self.ui.listWidgetGameEditDifficulties.currentRow() + 1
             for i in range(rows):
-                self.ui.listWidgetGameEditDifficultyComplete.addItem(
-                    self.ui.listWidgetGameEditDifficulty.item(0).text()
+                self.ui.listWidgetGameEditDifficultiesComplete.addItem(
+                    self.ui.listWidgetGameEditDifficulties.item(0).text()
                 )
 
-                self.ui.listWidgetGameEditDifficulty.takeItem(0)
+                self.ui.listWidgetGameEditDifficulties.takeItem(0)
 
     def game_edit_difficulty_not_completed(self):
-        if bool(self.ui.listWidgetGameEditDifficultyComplete.selectedItems()):
-            rows = self.ui.listWidgetGameEditDifficultyComplete.currentRow()
-            for i in range(self.ui.listWidgetGameEditDifficultyComplete.count() - 1, rows - 1, -1):
-                self.ui.listWidgetGameEditDifficulty.insertItem(
-                    0, self.ui.listWidgetGameEditDifficultyComplete.item(i).text()
+        if bool(self.ui.listWidgetGameEditDifficultiesComplete.selectedItems()):
+            rows = self.ui.listWidgetGameEditDifficultiesComplete.currentRow()
+            for i in range(self.ui.listWidgetGameEditDifficultiesComplete.count() - 1, rows - 1, -1):
+                self.ui.listWidgetGameEditDifficulties.insertItem(
+                    0, self.ui.listWidgetGameEditDifficultiesComplete.item(i).text()
                 )
-                self.ui.listWidgetGameEditDifficultyComplete.takeItem(i)
+                self.ui.listWidgetGameEditDifficultiesComplete.takeItem(i)
 
     def game_edit_storage_filter(self):
+        # filtrujemy liste nr 2 na podstawie listy nr 1
         pass
 
     def game_edit_add_cover(self):
@@ -189,25 +196,73 @@ class DGameEdit(QDialog):
         pass
 
     def game_edit_add_dict_value(self):
-        # okienko, które wie jaki słownik ma edytować
-        # wpisujemy wartość, zapisujemy lub wychodzimy
-        # podczas zapisu:
-        # dodajemy odpowiednią wartość do bazy
-        # ponownie pobieramy model z bazy
-        # usuwamy wszystkie itemy odpowiedniego comboboxa
-        # ponownie dodajemy itemy do comboboxa
-        # zamykamy okienko
-        pass
+        dictionary = self.sender().objectName().replace(self.button, "").replace("Add", "")
+        print(dictionary)
+        value, ok = QInputDialog.getText(self, dictionary, "Please input new value:")
 
-    def game_edit_add_collection(self):
-        pass
+        if value and ok:
+            sql = "EXEC dbo.GamesDataManipulate @type = :dictionary, @value = :value"
+            query = QSqlQuery()
+            query.prepare(sql)
 
-    def game_edit_add_storage(self):
-        # sprawdzamy na czym jest focus i wybieramy odpowiednią listę
-        pass
+            query.bindValue(":dictionary", dictionary)
+            query.bindValue(":value", value)
 
-    def game_edit_add_difficulty(self):
-        pass
+            if query.exec_():
+                self.conn.db.commit()
+                QMessageBox.warning(None, "Confirmation",
+                                    "Value added")
+            else:
+                QMessageBox.warning(None, "Database Error",
+                                    query.lastError().text())
+
+            qry = QSqlQuery(self.conn.db)
+            qry.prepare(self.game.sql[dictionary])
+
+            if ":id" in self.game.sql[dictionary]:
+                if self.game_id:
+                    qry.bindValue(':id', self.game_id)
+                else:
+                    qry.bindValue(':id', 0)
+
+            self.game.game[dictionary] = QSqlQueryModel()
+            self.game.game[dictionary] = self.conn.sql_query_model_fetch(self.game.game[dictionary], qry)
+
+        print(self.game.game[dictionary].record(0).value("Name"))
+
+        cb = ["Series", "Category", "Genre"]
+
+        if dictionary in cb:
+            for i in cb:
+                self.ui.__dict__["comboBoxGameEdit" + i].clear()
+
+            self.game_edit_dictionaries()
+
+        if dictionary == "Notes":
+            self.game_edit_notes()
+
+    def game_edit_add_from_dict_value(self):
+        dictionary = self.sender().objectName().replace(self.button, "").replace("ToList", "")
+
+        items = set([self.ui.__dict__["listWidgetGameEdit" + dictionary].item(x).text() for x in
+                 range(self.ui.__dict__["listWidgetGameEdit" + dictionary].count())])
+        temp = set([self.game.game[dictionary].record(x).value("Name") for x in
+                range(self.game.game[dictionary].rowCount())])
+
+        temp = temp.difference(items)
+
+        if len(temp):
+            value, ok = QInputDialog.getItem(self, dictionary, "Please input new value:", temp)
+
+            if value and ok:
+                if value not in items:
+                    self.ui.__dict__["listWidgetGameEdit" + dictionary].addItem(value)
+        else:
+            QMessageBox.warning(None, "Database Error", "Empty dict in database " + dictionary)
+
+    def game_edit_remove_from_list(self):
+        dictionary = self.sender().objectName().replace(self.button, "").replace("Delete", "")
+        self.ui.__dict__["listWidgetGameEdit" + dictionary].takeItem(self.ui.__dict__["listWidgetGameEdit" + dictionary].currentRow())
 
     def game_edit_save(self):
         pass

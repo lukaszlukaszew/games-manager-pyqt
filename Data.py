@@ -20,14 +20,17 @@ class Data:
             self.game = dict()
 
             for i in self.sql.keys():
-                qry = QSqlQuery(conn.db)
-                qry.prepare(self.sql[i])
+                self.data_refresh(i, conn, game_id)
 
-                if ":id" in self.sql[i]:
-                    if game_id:
-                        qry.bindValue(':id', game_id)
-                    else:
-                        qry.bindValue(':id', 0)
+        def data_refresh(self, i, conn, game_id):
+            qry = QSqlQuery(conn.db)
+            qry.prepare(self.sql[i])
 
-                self.game[i] = QSqlQueryModel()
-                self.game[i] = conn.sql_query_model_fetch(self.game[i], qry)
+            if ":id" in self.sql[i]:
+                if game_id:
+                    qry.bindValue(':id', game_id)
+                else:
+                    qry.bindValue(':id', 0)
+
+            self.game[i] = QSqlQueryModel()
+            self.game[i] = conn.sql_query_model_fetch(self.game[i], qry)

@@ -149,4 +149,3 @@ FROM dbo.GamesAttributesDifficulties gad
 	INNER JOIN dbo.GamesDictionaryDifficulties gdd on gdd.Id = gad.Dificulty_id
 
 GO
-
