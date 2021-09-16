@@ -24,7 +24,7 @@ class DGameEdit(QDialog):
         self.game = data.Game(self.conn, game_id)
 
         self.buttons = {
-            # "Save": "game_edit_save",
+            "Save": "game_edit_save",
             "Cancel": "close",
             # "CoverAdd": "game_edit_add_cover",
             # "CoverDelete": "game_edit_delete_cover",
@@ -83,6 +83,7 @@ class DGameEdit(QDialog):
 
     def game_edit_notes(self):
         for i in range(self.game.game["Notes"].rowCount()):
+            print(self.game.game["Notes"].record(i).value("Game_id"))
             note_category = self.game.game["Notes"].record(i).value("Name")
             note = str(self.game.game["Notes"].record(i).value("Note"))
 
@@ -197,7 +198,6 @@ class DGameEdit(QDialog):
 
     def game_edit_add_dict_value(self):
         dictionary = self.sender().objectName().replace(self.button, "").replace("Add", "")
-        print(dictionary)
         value, ok = QInputDialog.getText(self, dictionary, "Please input new value:")
 
         if value and ok:
@@ -227,8 +227,6 @@ class DGameEdit(QDialog):
 
             self.game.game[dictionary] = QSqlQueryModel()
             self.game.game[dictionary] = self.conn.sql_query_model_fetch(self.game.game[dictionary], qry)
-
-        print(self.game.game[dictionary].record(0).value("Name"))
 
         cb = ["Series", "Category", "Genre"]
 
@@ -260,55 +258,100 @@ class DGameEdit(QDialog):
         else:
             QMessageBox.warning(None, "Database Error", "Empty dict in database " + dictionary)
 
+        # TODO jeżeli storage to trzeba jeszcze wywołać collection
+
     def game_edit_remove_from_list(self):
         dictionary = self.sender().objectName().replace(self.button, "").replace("Delete", "")
         self.ui.__dict__["listWidgetGameEdit" + dictionary].takeItem(self.ui.__dict__["listWidgetGameEdit" + dictionary].currentRow())
 
     def game_edit_save(self):
-        pass
-    #
-    #     check = [self.ui.lineEditGameEditTitle.text(), self.ui.comboBoxGameEditType.currentText(),
-    #              self.ui.comboBoxGameEditGenre.currentText()]
-    #
-    #     """ ok i tutaj ważna rzecz: dodawanie nowej gry i edycja istniejącej będzie oparta o to samo okienko i ta
-    #     sama funkcje - rozroznienie, czy to jest edycja, czy nie, bedzie w procedurze w bazie po prostu po tym, czy
-    #     @gameid is null
-    #     podczas zapisywania beda dzialaly procedury: dodaj gre, dodaj poziomy trudnosci, dodaj ocene, dodaj okladke, dodaj recenzje"""
-    #
-    #     if all(check) and self.conn.db.isOpen():
-    #         query = QSqlQuery()
+        check = [self.ui.lineEditGameEditTitle.text(), self.ui.comboBoxGameEditCategory.currentText(),
+                 self.ui.comboBoxGameEditGenre.currentText()]
 
-    # ok, to tutaj przejdzie, ale nie w pobieraniu
-    #         query.prepare(
-    #             "EXEC DodajGre @title = :title, @gameatrid = :atr, @ReleaseDate = :date, @typ = 2, @genreid = :genre, @seriesId = :series")
-    #
-    #         query.bindValue(":title", self.ui.lineEditGameEditTitle.text())
-    #
-    #         """ co z serią??"""
-    #         print(self.ui.comboBoxGameEditSeries.currentIndex())
-    #         if self.ui.comboBoxGameEditSeries.currentIndex() == -1:
-    #             query.bindValue(":series", "NULL")
-    #         else:
-    #             query.bindValue(":series", str(self.game.query_game_series.record(
-    #                 self.ui.comboBoxGameEditSeries.currentIndex()).value("Id")))
-    #
-    #         query.bindValue(":date", self.ui.dateEditGameEditRelease.text())
-    #         query.bindValue(":atr",
-    #                         str(self.game.query_game_type.record(self.ui.comboBoxGameEditType.currentIndex()).value(
-    #                             "Id")))
-    #         query.bindValue(":genre",
-    #                         str(self.game.query_game_genre.record(self.ui.comboBoxGameEditGenre.currentIndex()).value(
-    #                             "Id")))
-    #
-    #         # query.exec_()
-    #         # print(query.lastInsertId())
-    #
-    #         if query.exec_():
-    #             conn.db.commit()
-    #             QMessageBox.warning(None, "Confirmation",
-    #                                 "Game added")
-    #         else:
-    #             QMessageBox.warning(None, "Database Error",
-    #                                 query.lastError().text())
-    #
-    #         ### przy zapisie porównujemy czy wszystko jest takie samo z aktualnymi wartościami, ale po stronie bazy
+        if all(check) and self.conn.db.isOpen():
+            query = QSqlQuery()
+
+            sql = "EXEC dbo.GamesDataManipulate @name = :name, @category = :category, @date = :date, @genre = :genre, @series = :series, @type = 'ADDGAME'"
+
+            if self.game_id:
+                sql += ", @id = :id"
+
+            query.prepare(sql)
+
+            if self.game_id:
+                query.bindValue(':id', self.game_id)
+
+            query.bindValue(":name", self.ui.lineEditGameEditTitle.text())
+
+            if self.ui.comboBoxGameEditSeries.currentIndex() == -1:
+                query.bindValue(":series", "NULL")
+            else:
+                query.bindValue(":series", self.game.game["Series"].record(
+                    self.ui.comboBoxGameEditSeries.currentIndex()).value("Id"))
+
+            query.bindValue(":date", self.ui.dateEditGameEditRelease.text())
+
+            query.bindValue(":category", self.game.game["Category"].record(self.ui.comboBoxGameEditCategory.currentIndex()).value(
+                                "Id"))
+
+            query.bindValue(":genre",
+                            self.game.game["Genre"].record(self.ui.comboBoxGameEditGenre.currentIndex()).value(
+                                "Id"))
+
+            # cb = ["Series", "Category", "Genre"]
+            #
+            # for i in cb:
+            #     print(i, self.ui.__dict__["comboBoxGameEdit" + i].currentIndex(),
+            #           self.ui.__dict__["comboBoxGameEdit" + i].currentText())
+
+            if query.exec_():
+                self.conn.db.commit()
+                QMessageBox.warning(None, "Confirmation",
+                                    "Game added")
+            else:
+                QMessageBox.warning(None, "Database Error",
+                                    query.lastError().text())
+
+            if not self.game_id:
+                self.game_id = query.lastInsertId()
+
+            # NOTES
+
+            if self.game_id:
+                qry = QSqlQuery()
+
+                for i in range(self.game.game["Notes"].rowCount()):
+                    sql = "EXEC dbo.GamesDataManipulate @note_id = :note_id, @id = :id, @note = :note, @type = 'ADDNOTES'"
+                    qry.prepare(sql)
+
+                    qry.bindValue(":id", self.game_id)
+                    qry.bindValue(":note_id", self.game.game["Notes"].record(i).value("Id"))
+                    qry.bindValue(":note", self.ui.__dict__[self.slider + self.game.game["Notes"].record(i).value("Name")].value())
+
+                    if qry.exec_():
+                        self.conn.db.commit()
+
+
+                    else:
+                        QMessageBox.warning(None, "Database Error",
+                                            qry.lastError().text())
+
+                    print(qry.boundValues())
+
+            # COLLECTION
+
+            """ tutaj trzeba uwzględnić także usuwanie"""
+
+            # DIFFICULTIES
+
+            """ tutaj trzeba uwzględnić także usuwanie, czyli tak --- ustalamy listę wysyłamy do """
+
+
+            # TODO jak rozwiązać dodawnie storage?
+
+            self.close()
+
+        else:
+            QMessageBox.warning(None, "Data Error",
+                                "You forgot about parameter")
+

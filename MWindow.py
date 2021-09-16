@@ -20,7 +20,7 @@ class AppGamesManager(QMainWindow):
         self.ui.pushButtonGamesEdit.clicked.connect(self.dialog_game_edit)
         self.ui.pushButtonGamesAdd.clicked.connect(self.dialog_game_add)
 
-        self.sql_games_list = 'SELECT * FROM dbo.GamesMainView WHERE Id = 355'
+        self.sql_games_list = 'SELECT * FROM dbo.GamesMainView --WHERE Id = 355'
         self.query_games_list = QSqlQueryModel()
 
         self.conn = conn
