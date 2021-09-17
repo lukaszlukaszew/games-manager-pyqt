@@ -151,3 +151,4 @@ FROM dbo.GamesAttributesDifficulties gad
 
 GO
 
+ALTER TABLE GamesAttributesDifficulties add [Current] bit

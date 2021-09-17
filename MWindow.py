@@ -20,7 +20,7 @@ class AppGamesManager(QMainWindow):
         self.ui.pushButtonGamesEdit.clicked.connect(self.dialog_game_edit)
         self.ui.pushButtonGamesAdd.clicked.connect(self.dialog_game_add)
 
-        self.sql_games_list = 'SELECT * FROM dbo.GamesMainView --WHERE Id = 355'
+        self.sql_games_list = "SELECT * FROM dbo.GamesMainView order by Series, [Release date]"
 
         self.query_games_list = QSqlQueryModel()
 
@@ -32,6 +32,8 @@ class AppGamesManager(QMainWindow):
         qry.prepare(self.sql_games_list)
 
         self.query_games_list = self.conn.sql_query_model_fetch(self.query_games_list, qry)
+
+        # TODO tę listę trzeba będzie przerobić na taką, którą można ładnie filtrować i modyfikować
 
         self.ui.mdiArea.addSubWindow(self.ui.subwindowGames)
         self.ui.tableViewGamesList.setModel(self.query_games_list)
