@@ -16,16 +16,9 @@ if __name__ == "__main__":
 
     sys.exit(app.exec_())
 
-
-# TODO - storage po stronie bazy
-# TODO - filtrowanie listy storage, gdy jest focus na collection odpowiednim
-# TODO - zapisywanie i edycja bazy
-# TODO - dodawanie nowej gry
-# TODO - dodawanie storage
-# TODO - dodawanie poziomu trudności (zabezpieczneie, żeby nie dodawać tego samego)
+# TODO - dodawanie recenzji
 # TODO - dodawanie okładki
 # TODO - reformat nr III
-# TODO - zakładka recenzji
 # TODO - oprzeć się na procedurach w bazie
 
 
@@ -57,3 +50,5 @@ if __name__ == "__main__":
 # TODO - akcja COLLECTION
 
 # TODO - projekt raportów zdefiniowanych
+
+# TODO - jak ładniej przekazywać ID do bazy? jak podpiąć modele do widgetow, zeby to spelnialo swoja funkcje?

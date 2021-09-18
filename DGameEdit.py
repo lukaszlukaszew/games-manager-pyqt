@@ -7,7 +7,6 @@ from PyQt5.QtCore import QDate, Qt
 
 
 # TODO wywalić z całego okienka fragment "GameEdit"
-# TODO zrobic, zeby dzialalo bez game_id
 
 
 class DGameEdit(QDialog):
@@ -50,7 +49,7 @@ class DGameEdit(QDialog):
         for k, v in self.buttons.items():
             self.ui.__dict__[self.button + k].clicked.connect(getattr(self, v))
 
-        self.ui.listWidgetGameEditCollection.currentRowChanged.connect(self.game_edit_storage_filter)
+        #self.ui.listWidgetGameEditCollection.currentRowChanged.connect(self.game_edit_storage_filter)
 
         self.ui.progressBarGameEditAvgNote.setFormat(str(self.ui.progressBarGameEditAvgNote.value()).format(".2f"))
 
@@ -122,20 +121,13 @@ class DGameEdit(QDialog):
                     )
 
     def game_edit_collection(self):
-        collection = list()
-        for i in range(self.game.game["Collection"].rowCount()):
-            if self.game.game["Collection"].record(i).value("Collection_name") not in collection and \
-                    self.game.game["Collection"].record(i).value("Game_id"):
-                self.ui.listWidgetGameEditCollection.addItem(
-                    self.game.game["Collection"].record(i).value("Name")
-                )
-                collection.append(self.game.game["Collection"].record(i).value("Collection_name"))
-                for j in range(self.game.game["Storage"].rowCount()):
-                    if self.game.game["Storage"].record(j).value("Id") == \
-                            self.game.game["Collection"].record(i).value("Id"):
-                        self.ui.listWidgetGameEditStorage.addItem(
-                            self.game.game["Storage"].record(i).value("Name")
-                        )
+        cs = ["Storage", "Collection"]
+        for i in cs:
+            for j in range(self.game.game[i].rowCount()):
+                if self.game.game[i].record(j).value("Game_id"):
+                    self.ui.__dict__["listWidgetGameEdit"+i].addItem(
+                        self.game.game[i].record(j).value("Name")
+                    )
 
     def game_edit_avg_note(self):
         notes_sum = 0
@@ -174,10 +166,6 @@ class DGameEdit(QDialog):
                     0, self.ui.listWidgetGameEditDifficultiesComplete.item(i).text()
                 )
                 self.ui.listWidgetGameEditDifficultiesComplete.takeItem(i)
-
-    def game_edit_storage_filter(self):
-        # filtrujemy liste nr 2 na podstawie listy nr 1
-        pass
 
     def game_edit_add_cover(self):
         # otwieramy okienko do wyboru obrazu
@@ -256,7 +244,6 @@ class DGameEdit(QDialog):
 
         temp = temp.difference(items)
 
-
         if len(temp):
             value, ok = QInputDialog.getItem(self, dictionary, "Please input new value:", temp)
 
@@ -265,8 +252,6 @@ class DGameEdit(QDialog):
                     self.ui.__dict__["listWidgetGameEdit" + dictionary].addItem(value)
         else:
             QMessageBox.warning(None, "Database Error", "Empty dict in database " + dictionary)
-
-        # TODO jeżeli storage to trzeba jeszcze wywołać collection
 
     def game_edit_remove_from_list(self):
         dictionary = self.sender().objectName().replace(self.button, "").replace("Delete", "")
@@ -343,22 +328,47 @@ class DGameEdit(QDialog):
                         QMessageBox.warning(None, "Database Error",
                                             qry.lastError().text())
 
-                #    print(qry.boundValues())
 
                 # COLLECTION
 
                 """ tutaj trzeba uwzględnić także usuwanie"""
 
-                # DIFFICULTIES
-
-                """ tutaj trzeba uwzględnić także usuwanie, czyli tak --- ustalamy listę wysyłamy do """
-                # TODO to na pewno bedzie trzeba przerobic, troche slabe rozwiazanie, ale to trzeba sie wiecej dowiedziec
-
                 qry2 = QSqlQuery()
-                sql2 = "EXEC dbo.GamesDataManipulate @id = :id, @type = 'FINDDIFF'"
+                sql2 = "EXEC dbo.GamesDataManipulate @id = :id, @type = 'FINDCOLL'"
 
                 qry2.prepare(sql2)
+                qry2.bindValue(":id", self.game_id)
 
+                if qry2.exec_():
+                    self.conn.db.commit()
+
+                else:
+                    QMessageBox.warning(None, "Database Error",
+                                        qry2.lastError().text())
+
+                for i in range(self.ui.listWidgetGameEditCollection.count()):
+                    qry = QSqlQuery()
+                    sql = "EXEC dbo.GamesDataManipulate @collection = :collection, @id = :id, @type = 'ADDCOLL'"
+                    qry.prepare(sql)
+                    # to bedzie slabe, bo sie bedzie wywalac jak slownik bedzie pusty... trzeba bedzie przetestowac na pustej bazie
+                    for j in range(self.game.game["Collection"].rowCount()):
+                        if self.game.game["Collection"].record(j).value("Name") == self.ui.listWidgetGameEditCollection.item(i).text():
+                            qry.bindValue(":collection", self.game.game["Collection"].record(j).value("Id"))
+
+
+                    qry.bindValue(":id", self.game_id)
+
+                    if qry.exec_():
+                        self.conn.db.commit()
+
+                    else:
+                        QMessageBox.warning(None, "Database Error",
+                                            qry.lastError().text())
+
+                qry2 = QSqlQuery()
+                sql2 = "EXEC dbo.GamesDataManipulate @id = :id, @type = 'CLEANCOLL'"
+
+                qry2.prepare(sql2)
 
                 qry2.bindValue(":id", self.game_id)
 
@@ -369,8 +379,74 @@ class DGameEdit(QDialog):
                     QMessageBox.warning(None, "Database Error",
                                         qry2.lastError().text())
 
-                in_game_number = 0
+                # STORAGE
 
+                qry2 = QSqlQuery()
+                sql2 = "EXEC dbo.GamesDataManipulate @id = :id, @type = 'FINDSTOR'"
+
+                qry2.prepare(sql2)
+                qry2.bindValue(":id", self.game_id)
+
+                if qry2.exec_():
+                    self.conn.db.commit()
+
+                else:
+                    QMessageBox.warning(None, "Database Error",
+                                        qry2.lastError().text())
+
+                for i in range(self.ui.listWidgetGameEditStorage.count()):
+                    qry = QSqlQuery()
+                    sql = "EXEC dbo.GamesDataManipulate @storage = :storage, @id = :id, @type = 'ADDSTOR'"
+                    qry.prepare(sql)
+                    # to bedzie slabe, bo sie bedzie wywalac jak slownik bedzie pusty... trzeba bedzie przetestowac na pustej bazie
+                    for j in range(self.game.game["Storage"].rowCount()):
+                        if self.game.game["Storage"].record(j).value(
+                                "Name") == self.ui.listWidgetGameEditStorage.item(i).text():
+                            qry.bindValue(":storage", self.game.game["Storage"].record(j).value("Id"))
+
+                    qry.bindValue(":id", self.game_id)
+
+                    if qry.exec_():
+                        self.conn.db.commit()
+
+                    else:
+                        QMessageBox.warning(None, "Database Error",
+                                            qry.lastError().text())
+
+                qry2 = QSqlQuery()
+                sql2 = "EXEC dbo.GamesDataManipulate @id = :id, @type = 'CLEANSTOR'"
+
+                qry2.prepare(sql2)
+
+                qry2.bindValue(":id", self.game_id)
+
+                if qry2.exec_():
+                    self.conn.db.commit()
+
+                else:
+                    QMessageBox.warning(None, "Database Error",
+                                        qry2.lastError().text())
+
+                # DIFFICULTIES
+
+                """ tutaj trzeba uwzględnić także usuwanie, czyli tak --- ustalamy listę wysyłamy do """
+                # TODO to na pewno bedzie trzeba przerobic, troche slabe rozwiazanie, ale to trzeba sie wiecej dowiedziec - jak przekazywać do bazy kilka wartości na raz? taką tabelkę
+
+                qry2 = QSqlQuery()
+                sql2 = "EXEC dbo.GamesDataManipulate @id = :id, @type = 'FINDDIFF'"
+
+                qry2.prepare(sql2)
+                qry2.bindValue(":id", self.game_id)
+
+                if qry2.exec_():
+                    self.conn.db.commit()
+
+                else:
+                    QMessageBox.warning(None, "Database Error",
+                                        qry2.lastError().text())
+
+                in_game_number = 0
+                # TODO to poprawic, zeby przekazywalo ID, a nie name
                 for i in range(self.ui.listWidgetGameEditDifficultiesComplete.count()):
                     qry = QSqlQuery()
                     sql = "EXEC dbo.GamesDataManipulate @id = :id, @name = :name, @complete = 1, @ign = :ign, @type = 'ADDDIFF'"
@@ -419,8 +495,6 @@ class DGameEdit(QDialog):
                 else:
                     QMessageBox.warning(None, "Database Error",
                                         qry2.lastError().text())
-
-            # TODO jak rozwiązać dodawnie storage?
 
             self.close()
 

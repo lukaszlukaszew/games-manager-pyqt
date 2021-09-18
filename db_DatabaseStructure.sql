@@ -77,8 +77,20 @@ CREATE TABLE GamesAttributesCollection (
 	Id int IDENTITY (1,1) PRIMARY KEY NOT NULL,
 	Game_id int FOREIGN KEY REFERENCES Games(Id) NOT NULL,
 	Collection_id int FOREIGN KEY REFERENCES GamesDictionaryCollection(Id) NOT NULL,
-	Storage_id int FOREIGN KEY REFERENCES GamesDictionaryStorage(Id) NULL
 	);
+
+CREATE TABLE GamesAttributesStorage (
+	Id int IDENTITY (1,1) PRIMARY KEY NOT NULL,
+	Game_id int FOREIGN KEY REFERENCES Games(Id) NOT NULL,
+	Storage_id int FOREIGN KEY REFERENCES GamesDictionaryStorage(Id) NOT NULL
+	);
+
+CREATE TABLE GamesReviews (
+	Id int IDENTITY (1,1) PRIMARY KEY NOT NULL,
+	Game_id int FOREIGN KEY REFERENCES Games(Id) NOT NULL,
+	Review text
+	);
+
 GO
 
 --- WSTÊPNE WYPE£NIENIE WIERSZY, KTÓRE S¥ POTRZEBNE
@@ -152,3 +164,9 @@ FROM dbo.GamesAttributesDifficulties gad
 GO
 
 ALTER TABLE GamesAttributesDifficulties add [Current] bit
+
+ALTER TABLE GamesAttributesCollection add [Current] bit
+
+ALTER TABLE GamesAttributesStorage add [Current] bit
+
+ALTER TABLE GamesAttributesCollection drop column Storage_id
