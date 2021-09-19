@@ -12,7 +12,7 @@ class Data:
             , "Collection": 'SELECT gdc.Id, gac.Game_id, gdc.Name FROM dbo.GamesDictionaryCollection gdc	LEFT JOIN ( SELECT Id, Game_id, Collection_id FROM dbo.GamesAttributesCollection WHERE Game_id = :id) gac ON gac.Collection_id = gdc.Id ORDER BY gdc.Name'
             , "Storage": 'SELECT gds.Id, gas.Game_id, gds.Name FROM dbo.GamesDictionaryStorage gds LEFT JOIN ( SELECT Id, Game_id, Storage_id FROM dbo.GamesAttributesStorage WHERE Game_id = :id) gas ON gas.Storage_id = gds.Id'
             , "Difficulties": 'SELECT gad.Game_id, gad.InGameNumber, gad.Completed, gdd.Name FROM dbo.GamesDictionaryDifficulties gdd LEFT JOIN (SELECT Game_id, InGameNumber, Completed, Dificulty_id FROM dbo.GamesAttributesDifficulties WHERE game_id = :id) gad ON gdd.Id = gad.Dificulty_id ORDER BY gad.InGameNumber'
-            #, "Review": "a"
+            , "Review": "SELECT Review FROM dbo.GamesReviews WHERE Game_id = :id"
             # , "Cover":
         }
 

@@ -20,7 +20,7 @@ class AppGamesManager(QMainWindow):
         self.ui.pushButtonGamesEdit.clicked.connect(self.dialog_game_edit)
         self.ui.pushButtonGamesAdd.clicked.connect(self.dialog_game_add)
 
-        self.sql_games_list = "SELECT * FROM dbo.GamesMainView order by Series, [Release date]"
+        self.sql_games_list = "SELECT * FROM dbo.GamesMainView/* where COPIES is null or COPIES = 0 */order by Series, [Release date]"
 
         self.query_games_list = QSqlQueryModel()
 

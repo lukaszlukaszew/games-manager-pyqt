@@ -67,6 +67,7 @@ class DGameEdit(QDialog):
         self.ui.dateEditGameEditRelease.setDate(
             QDate.fromString(self.game.game["Data"].record(0).value("Release_date"), "yyyy-MM-dd")
         )
+        self.ui.textEditGameEditReview.setText(self.game.game["Review"].record(0).value("Review"))
 
     def game_edit_dictionaries(self):
         cb = ["Series", "Category", "Genre"]
@@ -488,6 +489,20 @@ class DGameEdit(QDialog):
                 qry2.prepare(sql2)
 
                 qry2.bindValue(":id", self.game_id)
+
+                if qry2.exec_():
+                    self.conn.db.commit()
+
+                else:
+                    QMessageBox.warning(None, "Database Error",
+                                        qry2.lastError().text())
+
+                qry2 = QSqlQuery()
+                sql2 = "EXEC dbo.GamesDataManipulate @id = :id, @text = :text, @type = 'REVIEW'"
+
+                qry2.prepare(sql2)
+                qry2.bindValue(":id", self.game_id)
+                qry2.bindValue(":text", self.ui.textEditGameEditReview.toPlainText())
 
                 if qry2.exec_():
                     self.conn.db.commit()

@@ -1,5 +1,5 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow
+from PyQt5.QtWidgets import QApplication
 
 from MWindow import *
 from DatabaseConnector import *
@@ -16,7 +16,6 @@ if __name__ == "__main__":
 
     sys.exit(app.exec_())
 
-# TODO - dodawanie recenzji
 # TODO - dodawanie okładki
 # TODO - reformat nr III
 # TODO - oprzeć się na procedurach w bazie
@@ -52,3 +51,4 @@ if __name__ == "__main__":
 # TODO - projekt raportów zdefiniowanych
 
 # TODO - jak ładniej przekazywać ID do bazy? jak podpiąć modele do widgetow, zeby to spelnialo swoja funkcje?
+# TODO - czy recenzje zapisywać jako XML, żeby można było wprowadzić jakieś ładne formatowanie? jak to zrobić?
