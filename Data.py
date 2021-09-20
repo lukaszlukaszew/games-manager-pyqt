@@ -13,7 +13,6 @@ class Data:
             , "Storage": 'SELECT gds.Id, gas.Game_id, gds.Name FROM dbo.GamesDictionaryStorage gds LEFT JOIN ( SELECT Id, Game_id, Storage_id FROM dbo.GamesAttributesStorage WHERE Game_id = :id) gas ON gas.Storage_id = gds.Id'
             , "Difficulties": 'SELECT gad.Game_id, gad.InGameNumber, gad.Completed, gdd.Name FROM dbo.GamesDictionaryDifficulties gdd LEFT JOIN (SELECT Game_id, InGameNumber, Completed, Dificulty_id FROM dbo.GamesAttributesDifficulties WHERE game_id = :id) gad ON gdd.Id = gad.Dificulty_id ORDER BY gad.InGameNumber'
             , "Review": "SELECT Review FROM dbo.GamesReviews WHERE Game_id = :id"
-            # , "Cover":
         }
 
         def __init__(self, conn, game_id):

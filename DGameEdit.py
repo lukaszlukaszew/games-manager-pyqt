@@ -1,9 +1,10 @@
 from PyQt5 import QtCore
 
 import DialogGameEdit
-from PyQt5.QtWidgets import QDialog, QMessageBox, QLabel, QSizePolicy, QSlider, QInputDialog
-from PyQt5.QtSql import QSqlQuery, QSqlQueryModel, QSqlRelationalTableModel
+from PyQt5.QtWidgets import QDialog, QMessageBox, QLabel, QSlider, QInputDialog, QGraphicsScene, QGraphicsPixmapItem
+from PyQt5.QtSql import QSqlQuery, QSqlQueryModel
 from PyQt5.QtCore import QDate, Qt
+from PyQt5.QtGui import QPixmap
 
 
 # TODO wywalić z całego okienka fragment "GameEdit"
@@ -20,13 +21,15 @@ class DGameEdit(QDialog):
         self.label = "labelGameEdit"
         self.slider = "horizontalSliderGameEdit"
         self.button = "pushButtonGameEdit"
+        self.cover = 1
         self.game = data.Game(self.conn, game_id)
+        self.scene = QGraphicsScene(self)
+        self.pixmap = QPixmap()
+        self.image_item = QGraphicsPixmapItem(self.pixmap)
 
         self.buttons = {
             "Save": "game_edit_save",
             "Cancel": "close",
-            # "CoverAdd": "game_edit_add_cover",
-            # "CoverDelete": "game_edit_delete_cover",
             "DifficultiesAdd": "game_edit_add_dict_value",
             "DifficultiesToList": "game_edit_add_from_dict_value",
             "DifficultiesDelete":"game_edit_remove_from_list",
@@ -68,6 +71,13 @@ class DGameEdit(QDialog):
             QDate.fromString(self.game.game["Data"].record(0).value("Release_date"), "yyyy-MM-dd")
         )
         self.ui.textEditGameEditReview.setText(self.game.game["Review"].record(0).value("Review"))
+
+
+        self.pixmap.load("covers/" + str(self.game_id) + ".jpg")
+        self.pixmap = self.pixmap.scaled(self.ui.graphicsViewGameEditCover.width()-20, self.ui.graphicsViewGameEditCover.height()-20, aspectRatioMode=Qt.KeepAspectRatio)
+        self.image_item = QGraphicsPixmapItem(self.pixmap)
+        self.scene.addItem(self.image_item)
+        self.ui.graphicsViewGameEditCover.setScene(self.scene)
 
     def game_edit_dictionaries(self):
         cb = ["Series", "Category", "Genre"]
@@ -167,23 +177,6 @@ class DGameEdit(QDialog):
                     0, self.ui.listWidgetGameEditDifficultiesComplete.item(i).text()
                 )
                 self.ui.listWidgetGameEditDifficultiesComplete.takeItem(i)
-
-    def game_edit_add_cover(self):
-        # otwieramy okienko do wyboru obrazu
-        # wczytujemy obraz
-        # przerabiamy format obrazu
-        # podczas zapisu:
-        # zapisujemy obraz w bazie
-        # ustawiamy obraz w odpowiednim polu
-        # zamykamy okienko
-        pass
-
-    def game_edit_delete_cover(self):
-        # wyświetlamy komunikat, czy na pewno
-        # podczas zapisu
-        # usuwamy obraz z bazy
-        # usuwamy obraz z odpowiedniego pola
-        pass
 
     def game_edit_add_dict_value(self):
         dictionary = self.sender().objectName().replace(self.button, "").replace("Add", "")

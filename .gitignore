@@ -1,4 +1,4 @@
-.idea/
+﻿.idea/
 __pycache__/
 1979 Revolution.docx
 a.sql
@@ -16,3 +16,4 @@ ukończenie.sql
 zeszyt1.xlsx
 SQLQuery40.sql
 Procedure_GamesDataRetrieve.sql
+covers/

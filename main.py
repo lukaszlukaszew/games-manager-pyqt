@@ -16,9 +16,7 @@ if __name__ == "__main__":
 
     sys.exit(app.exec_())
 
-# TODO - dodawanie okładki
 # TODO - reformat nr III
-# TODO - oprzeć się na procedurach w bazie
 
 
 # TODO - projekt akcji refresh
