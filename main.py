@@ -18,7 +18,6 @@ if __name__ == "__main__":
 
 # TODO - reformat nr III
 
-
 # TODO - projekt akcji refresh
 # TODO - akcja refresh
 
@@ -48,5 +47,6 @@ if __name__ == "__main__":
 
 # TODO - projekt raportów zdefiniowanych
 
-# TODO - jak ładniej przekazywać ID do bazy? jak podpiąć modele do widgetow, zeby to spelnialo swoja funkcje?
-# TODO - czy recenzje zapisywać jako XML, żeby można było wprowadzić jakieś ładne formatowanie? jak to zrobić?
+# TODO - how handle data models with widgets better? is there a way to implement direct passing "id" to the procedures?
+# TODO - storing reviews as XML file in the database - will it allow more formatting options for the text?
+# TODO - how to pass more array of values to a database, for example all difficulty levels at once?

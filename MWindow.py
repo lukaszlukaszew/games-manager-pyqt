@@ -58,5 +58,5 @@ class AppGamesManager(QMainWindow):
         dialog.exec_()
 
     def dialog_game_add(self):
-        dialog = DGameEdit(self.conn, self.data, False)
+        dialog = DGameEdit(self.conn, self.data, None)
         dialog.exec_()

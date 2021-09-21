@@ -16,6 +16,7 @@ class DatabaseConnector:
         if self.db.isOpen():
             if not qry.exec_():
                 QMessageBox.warning(None, "Database Error", qry.lastError().text())
+
             query_model.setQuery(qry)
 
             while query_model.canFetchMore():
@@ -25,3 +26,16 @@ class DatabaseConnector:
 
         return query_model
 
+    def sql_upload(self, sql, params):
+        if self.db.isOpen():
+            qry = QSqlQuery()
+            qry.prepare(sql)
+
+            for k, v in params.items():
+                qry.bindValue(k, v)
+
+            if qry.exec_():
+                self.db.commit()
+                return qry.lastInsertId()
+            else:
+                QMessageBox.warning(None, "Database Error", qry.lastError().text())
