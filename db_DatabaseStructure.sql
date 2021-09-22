@@ -63,7 +63,8 @@ CREATE TABLE GamesAttributesDifficulties (
 	Dificulty_id int FOREIGN KEY REFERENCES GamesDictionaryDifficulties(Id) NOT NULL,
 	Game_id int FOREIGN KEY REFERENCES Games(Id) NOT NULL,
 	InGameNumber int NOT NULL,
-	Completed bit NOT NULL DEFAULT 0
+	Completed bit NOT NULL DEFAULT 0,
+	[Current] bit NULL
 	);
 
 CREATE TABLE GamesAttributesNotes (
@@ -77,12 +78,14 @@ CREATE TABLE GamesAttributesCollection (
 	Id int IDENTITY (1,1) PRIMARY KEY NOT NULL,
 	Game_id int FOREIGN KEY REFERENCES Games(Id) NOT NULL,
 	Collection_id int FOREIGN KEY REFERENCES GamesDictionaryCollection(Id) NOT NULL,
+	[Current] bit NULL
 	);
 
 CREATE TABLE GamesAttributesStorage (
 	Id int IDENTITY (1,1) PRIMARY KEY NOT NULL,
 	Game_id int FOREIGN KEY REFERENCES Games(Id) NOT NULL,
-	Storage_id int FOREIGN KEY REFERENCES GamesDictionaryStorage(Id) NOT NULL
+	Storage_id int FOREIGN KEY REFERENCES GamesDictionaryStorage(Id) NOT NULL,
+	[Current] bit NULL
 	);
 
 CREATE TABLE GamesReviews (
@@ -92,11 +95,6 @@ CREATE TABLE GamesReviews (
 	);
 
 GO
-
---- WSTÊPNE WYPE£NIENIE WIERSZY, KTÓRE S¥ POTRZEBNE
-
-
-
 
 -- VIEWS
 
@@ -148,10 +146,9 @@ GO
 
 CREATE VIEW GamesCollectionView
 AS
-SELECT gac.Game_id, gdc.Name as Collection_name, gds.Name as Storage_name
+SELECT gac.Game_id, gdc.Name as Collection_name
 FROM dbo.GamesAttributesCollection gac
 	INNER JOIN dbo.GamesDictionaryCollection gdc ON gac.Collection_id = gdc.Id
-	LEFT JOIN dbo.GamesDictionaryStorage gds ON gac.Storage_id = gds.Id
 
 GO
 
@@ -162,11 +159,3 @@ FROM dbo.GamesAttributesDifficulties gad
 	INNER JOIN dbo.GamesDictionaryDifficulties gdd on gdd.Id = gad.Dificulty_id
 
 GO
-
-ALTER TABLE GamesAttributesDifficulties add [Current] bit
-
-ALTER TABLE GamesAttributesCollection add [Current] bit
-
-ALTER TABLE GamesAttributesStorage add [Current] bit
-
-ALTER TABLE GamesAttributesCollection drop column Storage_id

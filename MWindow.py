@@ -1,5 +1,6 @@
 import MainWindow
 from PyQt5.QtWidgets import QMainWindow
+from PyQt5.QtSql import QSqlQuery, QSqlQueryModel
 from DGameEdit import *
 
 
@@ -28,6 +29,7 @@ class AppGamesManager(QMainWindow):
         self.data = data
 
     def subwindow_games(self):
+        # TODO why self.ui.subwindowGames is deleted and what happens when I open second one?
         qry = QSqlQuery(self.conn.db)
         qry.prepare(self.sql_games_list)
 
