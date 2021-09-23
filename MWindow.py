@@ -11,9 +11,9 @@ class AppGamesManager(QMainWindow):
         self.showMaximized()
 
         self.ui.actionGames.triggered.connect(self.subwindow_games)
+
         self.ui.actionNotes.triggered.connect(self.subwindow_notes)
         self.ui.actionTags.triggered.connect(self.subwindow_tags)
-        self.ui.actionStorage.triggered.connect(self.subwindow_storage)
         self.ui.actionReviews.triggered.connect(self.subwindow_reviews)
 
         self.conn = conn
@@ -25,14 +25,17 @@ class AppGamesManager(QMainWindow):
         self.ui.mdiArea.addSubWindow(sub_window_games)
         sub_window_games.showMaximized()
 
+    def subwindow_dictionaries(self):
+        pass
+
     def subwindow_notes(self):
-        print("Notes editing to be implemented")
+        pass
 
     def subwindow_tags(self):
-        print("Tags editing to be implemented")
+        pass
 
     def subwindow_reviews(self):
-        print("Revievs to be implemented")
+        pass
 
     def subwindow_storage(self):
-        print("Storage editing to be implemented")
+        pass

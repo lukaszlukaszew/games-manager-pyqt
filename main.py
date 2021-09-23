@@ -15,8 +15,6 @@ if __name__ == "__main__":
 
     sys.exit(app.exec_())
 
-# TODO - refactor nr III
-
 # TODO - projekt akcji refresh
 # TODO - akcja refresh
 
@@ -28,23 +26,14 @@ if __name__ == "__main__":
 # TODO - projekt akcji SETTINGS
 # TODO - akcja settings (rozdzielczość, motyw,
 
-# TODO - projekt okienka NOTES
-# TODO - akcja NOTES
-
-# TODO - projekt okienka DICTS
-# TODO - akcja DICTS
+# TODO - projekt okienka SERIES/GENRE/CATEGORY/COLLECTION/STORAGE
+# TODO - akcja DICTIONARIES
 
 # TODO - projekt okienka TAGS
 # TODO - akcja TAGS
 
 # TODO - projekt okienka REVIEWS
 # TODO - akcja REVIEWS
-
-# TODO - projekt okienka STORAGE
-# TODO - akcja STORAGE
-
-# TODO - projekt okienka COLLECTION
-# TODO - akcja COLLECTION
 
 # TODO - projekt raportów zdefiniowanych
 
