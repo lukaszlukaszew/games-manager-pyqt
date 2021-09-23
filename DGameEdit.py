@@ -75,6 +75,8 @@ class DGameEdit(QDialog):
 
         cb = ["Series", "Category", "Genre"]
 
+        print("AAA")
+
         for i in cb:
             j = -1
             for k in range(self.game.models[i].rowCount()):
@@ -90,27 +92,31 @@ class DGameEdit(QDialog):
             note_category = self.game.models["Notes"].record(i).value("Name")
             note = str(self.game.models["Notes"].record(i).value("Note"))
 
-            self.ui.__dict__["label" + note_category] = QLabel(self.ui.tabNotes)
+            if "label" + note_category in self.ui.__dict__.keys():
+                self.ui.__dict__["label" + note_category].deleteLater()
+                self.ui.__dict__["label" + note_category + "Note"].deleteLater()
+                self.ui.__dict__["horizontalSlider" + note_category].deleteLater()
+
+            self.ui.__dict__["label" + note_category] = QLabel(self.ui.scrollAreaWidgetContents)
             self.ui.__dict__["label" + note_category].setText(note_category)
-            self.ui.gridLayoutNotes.addWidget(self.ui.__dict__["label" + note_category], i, 0, 1, 1)
+            self.ui.__dict__["label" + note_category].setFixedHeight(40)
+            self.ui.gridLayout_6.addWidget(self.ui.__dict__["label" + note_category], i, 0, 1, 1)
 
-            self.ui.__dict__["label" + note_category + "Note"] = QLabel(self.ui.tabNotes)
-            self.ui.gridLayoutNotes.addWidget(self.ui.__dict__["label" + note_category + "Note"], i, 1, 1, 1)
+            self.ui.__dict__["label" + note_category + "Note"] = QLabel(self.ui.scrollAreaWidgetContents)
+            self.ui.__dict__["label" + note_category + "Note"].setFixedWidth(35)
+            self.ui.gridLayout_6.addWidget(self.ui.__dict__["label" + note_category + "Note"], i, 1, 1, 1)
 
-            self.ui.__dict__["horizontalSlider" + note_category] = QSlider(self.ui.tabNotes)
+            self.ui.__dict__["horizontalSlider" + note_category] = QSlider(self.ui.scrollAreaWidgetContents)
             self.ui.__dict__["horizontalSlider" + note_category].setMaximum(10)
             self.ui.__dict__["horizontalSlider" + note_category].setPageStep(1)
             self.ui.__dict__["horizontalSlider" + note_category].setOrientation(Qt.Horizontal)
-            self.ui.gridLayoutNotes.addWidget(self.ui.__dict__["horizontalSlider" + note_category], i, 2, 1, 1)
+            self.ui.gridLayout_6.addWidget(self.ui.__dict__["horizontalSlider" + note_category], i, 2, 1, 1)
 
             self.ui.__dict__["label" + note_category + "Note"].setText(note)
             self.ui.__dict__["horizontalSlider" + note_category].valueChanged.connect(self.avg_note)
             self.ui.__dict__["horizontalSlider" + note_category].setValue(int(note))
 
             # TODO jak rozwiązać kwestię tłumaczenia w powyższym?
-            # TODO jak zrobić, żeby to było ładnie równomiernie rozłożone w pionie, a nie zbite w kupę?
-            # TODO jak zrobić, żeby oceny w label nie wpływały na rozmiar sliderów?
-            # TODO jak podpiąć suwak?
 
     def difficulties(self):
         for i in range(self.game.models["Difficulties"].rowCount()):
@@ -203,12 +209,12 @@ class DGameEdit(QDialog):
         value, ok = QInputDialog.getText(self, dictionary, "Please input new value:")
 
         if value and ok:
-            sql = "EXEC dbo.GamesDataManipulate @type = :dictionary, @value = :value"
-            params = {":dictionary": dictionary, ":value": value}
-            if self.conn.sql_upload(sql, params):
+            self.params[":dictionary"] = dictionary
+            self.params[":value"] = value
+            if self.conn.sql_upload(self.params, self.game.sql_u, self.game.params, "Dict"):
                 QMessageBox.warning(None, "Confirmation", "Value added")
 
-            self.game.data_refresh(dictionary, self.conn, self.game_id)
+            self.game.data_refresh(self.conn, self.game_id, dictionary)
 
         cb = ["Series", "Category", "Genre"]
 
