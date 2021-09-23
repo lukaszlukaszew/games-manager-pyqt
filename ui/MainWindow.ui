@@ -42,16 +42,26 @@
     <property name="title">
      <string>Edit</string>
     </property>
+    <widget class="QMenu" name="menuDictionaries">
+     <property name="title">
+      <string>Dictionaries</string>
+     </property>
+     <addaction name="actionSeries"/>
+     <addaction name="actionCategory"/>
+     <addaction name="actionGenre"/>
+     <addaction name="actionCollection"/>
+     <addaction name="actionStorage"/>
+     <addaction name="actionDifficulties_2"/>
+    </widget>
     <addaction name="actionGames"/>
+    <addaction name="menuDictionaries"/>
     <addaction name="actionNotes"/>
-    <addaction name="actionDifficulties"/>
     <addaction name="actionTags"/>
     <addaction name="actionReviews"/>
-    <addaction name="actionStorage"/>
    </widget>
    <widget class="QMenu" name="menuStats">
     <property name="title">
-     <string>Stats</string>
+     <string>Reports</string>
     </property>
     <addaction name="actionPredefined"/>
     <addaction name="actionSaved"/>
@@ -83,11 +93,6 @@
     <string>Notes</string>
    </property>
   </action>
-  <action name="actionDifficulties">
-   <property name="text">
-    <string>Dictionaries</string>
-   </property>
-  </action>
   <action name="actionTags">
    <property name="text">
     <string>Tags</string>
@@ -113,11 +118,6 @@
     <string>Refresh</string>
    </property>
   </action>
-  <action name="actionStorage">
-   <property name="text">
-    <string>Storage</string>
-   </property>
-  </action>
   <action name="actionPredefined">
    <property name="text">
     <string>Predefined</string>
@@ -136,6 +136,36 @@
   <action name="actionAbout">
    <property name="text">
     <string>About</string>
+   </property>
+  </action>
+  <action name="actionSeries">
+   <property name="text">
+    <string>Series</string>
+   </property>
+  </action>
+  <action name="actionCategory">
+   <property name="text">
+    <string>Category</string>
+   </property>
+  </action>
+  <action name="actionGenre">
+   <property name="text">
+    <string>Genre</string>
+   </property>
+  </action>
+  <action name="actionCollection">
+   <property name="text">
+    <string>Collection</string>
+   </property>
+  </action>
+  <action name="actionDifficulties_2">
+   <property name="text">
+    <string>Difficulties</string>
+   </property>
+  </action>
+  <action name="actionStorage">
+   <property name="text">
+    <string>Storage</string>
    </property>
   </action>
  </widget>

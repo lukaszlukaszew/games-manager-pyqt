@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'DialogGameEdit.ui'
+# Form implementation generated from reading ui file 'DialogGameEdit2.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.4
 #
@@ -86,9 +86,6 @@ class Ui_Dialog(object):
         self.tabNotes.setObjectName("tabNotes")
         self.gridLayout_3 = QtWidgets.QGridLayout(self.tabNotes)
         self.gridLayout_3.setObjectName("gridLayout_3")
-        self.gridLayoutNotes = QtWidgets.QGridLayout()
-        self.gridLayoutNotes.setObjectName("gridLayoutNotes")
-        self.gridLayout_3.addLayout(self.gridLayoutNotes, 0, 0, 1, 3)
         self.labelAvg = QtWidgets.QLabel(self.tabNotes)
         self.labelAvg.setObjectName("labelAvg")
         self.gridLayout_3.addWidget(self.labelAvg, 3, 1, 1, 1)
@@ -98,11 +95,6 @@ class Ui_Dialog(object):
         self.progressBarAvgNote.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.progressBarAvgNote.setObjectName("progressBarAvgNote")
         self.gridLayout_3.addWidget(self.progressBarAvgNote, 3, 2, 1, 1)
-        self.verticalScrollBarNotes = QtWidgets.QScrollBar(self.tabNotes)
-        self.verticalScrollBarNotes.setEnabled(True)
-        self.verticalScrollBarNotes.setOrientation(QtCore.Qt.Vertical)
-        self.verticalScrollBarNotes.setObjectName("verticalScrollBarNotes")
-        self.gridLayout_3.addWidget(self.verticalScrollBarNotes, 0, 3, 1, 1)
         self.lineNotes = QtWidgets.QFrame(self.tabNotes)
         self.lineNotes.setFrameShape(QtWidgets.QFrame.HLine)
         self.lineNotes.setFrameShadow(QtWidgets.QFrame.Sunken)
@@ -111,6 +103,16 @@ class Ui_Dialog(object):
         self.pushButtonNotesAdd = QtWidgets.QPushButton(self.tabNotes)
         self.pushButtonNotesAdd.setObjectName("pushButtonNotesAdd")
         self.gridLayout_3.addWidget(self.pushButtonNotesAdd, 3, 0, 1, 1)
+        self.scrollArea = QtWidgets.QScrollArea(self.tabNotes)
+        self.scrollArea.setWidgetResizable(True)
+        self.scrollArea.setObjectName("scrollArea")
+        self.scrollAreaWidgetContents = QtWidgets.QWidget()
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 741, 445))
+        self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
+        self.gridLayout_6 = QtWidgets.QGridLayout(self.scrollAreaWidgetContents)
+        self.gridLayout_6.setObjectName("gridLayout_6")
+        self.scrollArea.setWidget(self.scrollAreaWidgetContents)
+        self.gridLayout_3.addWidget(self.scrollArea, 0, 0, 1, 3)
         self.tabWidget.addTab(self.tabNotes, "")
         self.tabStatus = QtWidgets.QWidget()
         self.tabStatus.setObjectName("tabStatus")
