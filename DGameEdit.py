@@ -1,4 +1,4 @@
-import DialogGameEdit
+from ui.DialogGameEdit import *
 from PyQt5.QtWidgets import QDialog, QMessageBox, QLabel, QSlider, QInputDialog, QGraphicsScene, QGraphicsPixmapItem
 from PyQt5.QtCore import QDate, Qt
 from PyQt5.QtGui import QPixmap
@@ -7,12 +7,13 @@ from PyQt5.QtGui import QPixmap
 class DGameEdit(QDialog):
     def __init__(self, conn, data, game_id):
         super().__init__()
-        self.ui = DialogGameEdit.Ui_Dialog()
+        self.ui = Ui_Dialog()
         self.ui.setupUi(self)
 
         self.conn = conn
         self.game_id = game_id
         self.game = data.Game(self.conn, game_id)
+        self.params = dict()
         self.scene = QGraphicsScene(self)
         self.pixmap = QPixmap()
         self.image_item = QGraphicsPixmapItem(self.pixmap)
@@ -225,115 +226,94 @@ class DGameEdit(QDialog):
                  self.ui.comboBoxGenre.currentText()]
 
         if all(check):
-            sql = "EXEC dbo.GamesDataManipulate @id = :id, @name = :name, @category = :category, @date = :date, @genre = :genre, @series = :series, @type = 'ADDGAME'"
-            params = {
-                ":id": self.game_id,
-                ":name": self.ui.lineEditTitle.text(),
-                ":series": None,
-                ":date": self.ui.dateEditRelease.text(),
-                ":category": self.game.models["Category"].record(self.ui.comboBoxCategory.currentIndex()).value("Id"),
-                ":genre": self.game.models["Genre"].record(self.ui.comboBoxGenre.currentIndex()).value("Id")
-            }
+            # DATA
+            self.params[":id"] = self.game_id
+            self.params[":name"] = self.ui.lineEditTitle.text()
+            self.params[":series"] = None
+            self.params[":date"] = self.ui.dateEditRelease.text()
+            self.params[":category"] = self.game.models["Category"].record(
+                self.ui.comboBoxCategory.currentIndex()).value("Id")
+            self.params[":genre"] = self.game.models["Genre"].record(self.ui.comboBoxGenre.currentIndex()).value("Id")
 
             if self.ui.comboBoxSeries.currentIndex() != -1:
-                params[":series"] = self.game.models["Series"].record(self.ui.comboBoxSeries.currentIndex()).value("Id")
-
-            self.conn.sql_upload(sql, params)
+                self.params[":series"] = self.game.models["Series"].record(
+                    self.ui.comboBoxSeries.currentIndex()).value("Id")
 
             if self.game_id:
+                self.conn.sql_upload(self.params, self.game.sql_u, self.game.params, "Data")
+            else:
+                self.params[":id"] = self.conn.sql_upload(self.params, self.game.sql_u, self.game.params, "Data")
 
-                # NOTES
+            # NOTES
+            self.params[":note_id"] = None
+            self.params["note"] = None
 
-                sql = "EXEC dbo.GamesDataManipulate @note_id = :note_id, @id = :id, @note = :note, @type = 'ADDNOTES'"
-                params = {":id": self.game_id, ":note_id": None, "note": None}
+            for i in range(self.game.models["Notes"].rowCount()):
+                self.params[":note_id"] = self.game.models["Notes"].record(i).value("Id")
+                self.params[":note"] = \
+                    self.ui.__dict__["horizontalSlider" + self.game.models["Notes"].record(i).value("Name")].value()
+                self.conn.sql_upload(self.params, self.game.sql_u, self.game.params, "Notes")
 
-                for i in range(self.game.models["Notes"].rowCount()):
-                    params[":note_id"] =  self.game.models["Notes"].record(i).value("Id")
-                    params[":note"] = \
-                        self.ui.__dict__["horizontalSlider" + self.game.models["Notes"].record(i).value("Name")].value()
-                    self.conn.sql_upload(sql, params)
+            # COLLECTION
+            self.conn.sql_upload(self.params, self.game.sql_u, self.game.params, "Collection1")
 
-                # COLLECTION
+            self.params[":collection"] = None
 
-                sql = "EXEC dbo.GamesDataManipulate @id = :id, @type = 'FINDCOLL'"
-                params = {":id": self.game_id}
-                self.conn.sql_upload(sql, params)
+            for i in range(self.ui.listWidgetCollection.count()):
+                for j in range(self.game.models["Collection"].rowCount()):
+                    if self.game.models["Collection"].record(j).value("Name") ==\
+                            self.ui.listWidgetCollection.item(i).text():
+                        self.params[":collection"] = self.game.models["Collection"].record(j).value("Id")
+                        self.conn.sql_upload(self.params, self.game.sql_u, self.game.params, "Collection2")
 
-                sql = "EXEC dbo.GamesDataManipulate @id = :id, @collection = :collection, @type = 'ADDCOLL'"
-                params = {":id": self.game_id, ":collection": None}
+            self.conn.sql_upload(self.params, self.game.sql_u, self.game.params, "Collection3")
 
-                for i in range(self.ui.listWidgetCollection.count()):
-                    for j in range(self.game.models["Collection"].rowCount()):
-                        if self.game.models["Collection"].record(j).value("Name") ==\
-                                self.ui.listWidgetCollection.item(i).text():
-                            params[":collection"] = self.game.models["Collection"].record(j).value("Id")
-                            self.conn.sql_upload(sql, params)
+            # STORAGE
+            self.conn.sql_upload(self.params, self.game.sql_u, self.game.params, "Storage1")
 
-                sql = "EXEC dbo.GamesDataManipulate @id = :id, @type = 'CLEANCOLL'"
-                params = {":id": self.game_id}
-                self.conn.sql_upload(sql, params)
+            self.params[":storage"] = None
 
-                # STORAGE
+            for i in range(self.ui.listWidgetStorage.count()):
+                for j in range(self.game.models["Storage"].rowCount()):
+                    if self.game.models["Storage"].record(j).value("Name") ==\
+                            self.ui.listWidgetStorage.item(i).text():
+                        self.params[":storage"] = self.game.models["Storage"].record(j).value("Id")
+                        self.conn.sql_upload(self.params, self.game.sql_u, self.game.params, "Storage2")
 
-                sql = "EXEC dbo.GamesDataManipulate @id = :id, @type = 'FINDSTOR'"
-                params = {":id": self.game_id}
-                self.conn.sql_upload(sql, params)
+            self.conn.sql_upload(self.params, self.game.sql_u, self.game.params, "Storage3")
 
-                sql = "EXEC dbo.GamesDataManipulate @id = :id, @storage = :storage, @type = 'ADDSTOR'"
-                params = {":id": self.game_id, ":storage": None}
+            # DIFFICULTIES
+            self.conn.sql_upload(self.params, self.game.sql_u, self.game.params, "Difficulties1")
 
-                for i in range(self.ui.listWidgetStorage.count()):
-                    for j in range(self.game.models["Storage"].rowCount()):
-                        if self.game.models["Storage"].record(j).value("Name") ==\
-                                self.ui.listWidgetStorage.item(i).text():
-                            params[":storage"] = self.game.models["Storage"].record(j).value("Id")
-                            self.conn.sql_upload(sql, params)
+            self.params[":diff"] = None
+            self.params[":ign"] = 0
+            self.params[":complete"] = 1
 
-                sql = "EXEC dbo.GamesDataManipulate @id = :id, @type = 'CLEANSTOR'"
-                params = {":id": self.game_id}
-                self.conn.sql_upload(sql, params)
+            for i in range(self.ui.listWidgetDifficultiesComplete.count()):
+                for j in range(self.game.models["Difficulties"].rowCount()):
+                    if self.game.models["Difficulties"].record(j).value("Name") ==\
+                            self.ui.listWidgetDifficultiesComplete.item(i).text():
+                        self.params[":diff"] = self.game.models["Difficulties"].record(j).value("Id")
+                        self.conn.sql_upload(self.params, self.game.sql_u, self.game.params, "Difficulties2")
 
-                # DIFFICULTIES
+                self.params[":ign"] += 1
 
-                sql = "EXEC dbo.GamesDataManipulate @id = :id, @type = 'FINDDIFF'"
-                params = {":id": self.game_id}
-                self.conn.sql_upload(sql, params)
+            self.params[":complete"] = 0
 
-                in_game_number = 0
-                sql = "EXEC dbo.GamesDataManipulate @id = :id, @diff = :diff, @complete = :complete, @ign = :ign, @type = 'ADDDIFF'"
-                params = {":id": self.game_id, ":diff": None, ":ign": None, ":complete": 1}
+            for i in range(self.ui.listWidgetDifficulties.count()):
+                for j in range(self.game.models["Difficulties"].rowCount()):
+                    if self.game.models["Difficulties"].record(j).value("Name") ==\
+                            self.ui.listWidgetDifficulties.item(i).text():
+                        self.params[":diff"] = self.game.models["Difficulties"].record(j).value("Id")
+                        self.conn.sql_upload(self.params, self.game.sql_u, self.game.params, "Difficulties2")
 
-                for i in range(self.ui.listWidgetDifficultiesComplete.count()):
-                    for j in range(self.game.models["Difficulties"].rowCount()):
-                        if self.game.models["Difficulties"].record(j).value("Name") ==\
-                                self.ui.listWidgetDifficultiesComplete.item(i).text():
-                            params[":diff"] = self.game.models["Difficulties"].record(j).value("Id")
-                            params[":ign"] = in_game_number
-                            self.conn.sql_upload(sql, params)
+                self.params[":ign"] += 1
 
-                    in_game_number += 1
+            self.conn.sql_upload(self.params, self.game.sql_u, self.game.params, "Difficulties3")
 
-                params[":complete"] = 0
-
-                for i in range(self.ui.listWidgetDifficulties.count()):
-                    for j in range(self.game.models["Difficulties"].rowCount()):
-                        if self.game.models["Difficulties"].record(j).value("Name") ==\
-                                self.ui.listWidgetDifficulties.item(i).text():
-                            params[":diff"] = self.game.models["Difficulties"].record(j).value("Id")
-                            params[":ign"] = in_game_number
-                            self.conn.sql_upload(sql, params)
-
-                    in_game_number += 1
-
-                sql = "EXEC dbo.GamesDataManipulate @id = :id, @type = 'CLEANDIFF'"
-                params = {":id": self.game_id}
-                self.conn.sql_upload(sql, params)
-
-                # REVIEW
-
-                sql = "EXEC dbo.GamesDataManipulate @id = :id, @text = :text, @type = 'REVIEW'"
-                params = {":id": self.game_id, ":text": self.ui.textEditReview.toPlainText()}
-                self.conn.sql_upload(sql, params)
+            # REVIEW
+            self.params[":text"] = self.ui.textEditReview.toPlainText()
+            self.conn.sql_upload(self.params, self.game.sql_u, self.game.params, "Review")
 
             QMessageBox.warning(None, "Congrats!", "Game added correctly")
             self.close()

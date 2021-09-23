@@ -1,5 +1,5 @@
 import config
-from PyQt5.QtSql import QSqlDatabase, QSqlQuery
+from PyQt5.QtSql import QSqlDatabase, QSqlQuery, QSqlQueryModel
 from PyQt5.QtWidgets import QMessageBox
 
 
@@ -12,30 +12,45 @@ class DatabaseConnector:
     def __del__(self):
         self.db.close()
 
-    def sql_query_model_fetch(self, query_model, qry):
+    def sql_query_model_fetch(self, model, qry):
         if self.db.isOpen():
             if not qry.exec_():
                 QMessageBox.warning(None, "Database Error", qry.lastError().text())
 
-            query_model.setQuery(qry)
+            model.setQuery(qry)
 
-            while query_model.canFetchMore():
-                query_model.fetchMore()
+            while model.canFetchMore():
+                model.fetchMore()
+
+            return model
         else:
             print("Database not connected")
 
-        return query_model
-
-    def sql_upload(self, sql, params):
+    def sql_upload(self, params, sql, to_bind, key):
         if self.db.isOpen():
             qry = QSqlQuery()
-            qry.prepare(sql)
+            qry.prepare(sql[key])
 
-            for k, v in params.items():
-                qry.bindValue(k, v)
+            for i in to_bind[key]:
+                qry.bindValue(i, params[i])
 
             if qry.exec_():
                 self.db.commit()
                 return qry.lastInsertId()
             else:
                 QMessageBox.warning(None, "Database Error", qry.lastError().text())
+
+    def sql_refresh(self, sql, game_id):
+        model = QSqlQueryModel()
+        if self.db.isOpen():
+            qry = QSqlQuery(self.db)
+            qry.prepare(sql)
+
+            if ":id" in sql:
+                if game_id:
+                    qry.bindValue(':id', game_id)
+                else:
+                    qry.bindValue(':id', 0)
+
+            model = self.sql_query_model_fetch(model, qry)
+            return model
