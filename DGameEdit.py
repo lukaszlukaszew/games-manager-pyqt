@@ -59,7 +59,7 @@ class DGameEdit(QDialog):
         )
         self.ui.textEditReview.setText(self.game.models["Review"].record(0).value("Review"))
 
-        self.pixmap.load("covers/" + str(self.game_id) + ".jpg")
+        self.pixmap.load("images/games/" + str(self.game_id) + ".jpg")
         self.pixmap = self.pixmap.scaled(
             self.ui.graphicsViewCover.width()-20,
             self.ui.graphicsViewCover.height()-20,
@@ -74,8 +74,6 @@ class DGameEdit(QDialog):
         # TODO - jakiekolwiek dodanie do słownika usuwa niezapisany wybór, nie może tak być
 
         cb = ["Series", "Category", "Genre"]
-
-        print("AAA")
 
         for i in cb:
             j = -1

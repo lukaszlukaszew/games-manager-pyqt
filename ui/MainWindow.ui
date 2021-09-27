@@ -42,19 +42,8 @@
     <property name="title">
      <string>Edit</string>
     </property>
-    <widget class="QMenu" name="menuDictionaries">
-     <property name="title">
-      <string>Dictionaries</string>
-     </property>
-     <addaction name="actionSeries"/>
-     <addaction name="actionCategory"/>
-     <addaction name="actionGenre"/>
-     <addaction name="actionCollection"/>
-     <addaction name="actionStorage"/>
-     <addaction name="actionDifficulties_2"/>
-    </widget>
     <addaction name="actionGames"/>
-    <addaction name="menuDictionaries"/>
+    <addaction name="actionDictionaries"/>
     <addaction name="actionNotes"/>
     <addaction name="actionTags"/>
     <addaction name="actionReviews"/>
@@ -67,8 +56,14 @@
     <addaction name="actionSaved"/>
     <addaction name="actionNew_from_scratch"/>
    </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>View</string>
+    </property>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
+   <addaction name="menuView"/>
    <addaction name="menuStats"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
@@ -138,34 +133,9 @@
     <string>About</string>
    </property>
   </action>
-  <action name="actionSeries">
+  <action name="actionDictionaries">
    <property name="text">
-    <string>Series</string>
-   </property>
-  </action>
-  <action name="actionCategory">
-   <property name="text">
-    <string>Category</string>
-   </property>
-  </action>
-  <action name="actionGenre">
-   <property name="text">
-    <string>Genre</string>
-   </property>
-  </action>
-  <action name="actionCollection">
-   <property name="text">
-    <string>Collection</string>
-   </property>
-  </action>
-  <action name="actionDifficulties_2">
-   <property name="text">
-    <string>Difficulties</string>
-   </property>
-  </action>
-  <action name="actionStorage">
-   <property name="text">
-    <string>Storage</string>
+    <string>Dictionaries</string>
    </property>
   </action>
  </widget>

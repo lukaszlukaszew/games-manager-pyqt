@@ -1,6 +1,6 @@
 class Data:
     class GameList:
-        sql = "SELECT * FROM dbo.GamesMainView /* where COPIES is null or COPIES = 0 */order by Series, [Release date]"
+        sql = "SELECT * FROM dbo.GamesMainView where id >= 49 order by Id--Series, [Release date]"
 
         def __init__(self, conn):
             self.model = conn.sql_refresh(self.sql, None)
