@@ -1,5 +1,6 @@
 ﻿.idea/
 __pycache__/
+images/games/
 a.sql
 config.py
 Projekt 2.sql
@@ -7,3 +8,5 @@ db_ProcedureGamesDataRetrieve.sql
 Gry do odnalezienia.xlsx
 gry ukończone.xlsx
 covers/
+rsthbgdxryhnjbx.xlsx
+pivot in sql.sql

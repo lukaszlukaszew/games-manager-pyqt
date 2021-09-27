@@ -15,19 +15,23 @@ if __name__ == "__main__":
 
     sys.exit(app.exec_())
 
+# TODO - projekt okienka SERIES/GENRE/CATEGORY/COLLECTION/STORAGE
+# TODO - akcja DICTIONARIES
+
+# TODO - uzupełnić dokumentację
+
+# TODO - poprawić wygląd procki do manipulacji danych
+
 # TODO - projekt akcji refresh
 # TODO - akcja refresh
 
-# TODO - uzupełnić dokumentację
+
 
 # TODO - projekt akcji about
 # TODO - akcja about
 
 # TODO - projekt akcji SETTINGS
 # TODO - akcja settings (rozdzielczość, motyw,
-
-# TODO - projekt okienka SERIES/GENRE/CATEGORY/COLLECTION/STORAGE
-# TODO - akcja DICTIONARIES
 
 # TODO - projekt okienka TAGS
 # TODO - akcja TAGS
