@@ -1,11 +1,12 @@
-from ui import MainWindow
+# pylint: disable-msg=E0611
 from PyQt5.QtWidgets import QMainWindow
-from SWindowGames import *
-from SWindowDicts import *
+from ui import MainWindow
+from SWindowGames import SubWindowGames
+from SWindowDicts import SubWindowDicts
 
 
 class AppGamesManager(QMainWindow):
-    def __init__(self, conn, data):
+    def __init__(self, conn, data) -> None:
         super().__init__()
         self.ui = MainWindow.Ui_MainWindow()
         self.ui.setupUi(self)
