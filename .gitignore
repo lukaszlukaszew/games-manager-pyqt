@@ -1,5 +1,6 @@
 ﻿.idea/
 __pycache__/
+.mypy_cache/
 images/games/
 a.sql
 config.py
@@ -10,3 +11,4 @@ gry ukończone.xlsx
 covers/
 rsthbgdxryhnjbx.xlsx
 pivot in sql.sql
+report.txt

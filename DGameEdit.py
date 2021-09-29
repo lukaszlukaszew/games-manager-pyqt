@@ -1,7 +1,9 @@
-from ui.DialogGameEdit import *
+# pylint: disable-msg=E0611
 from PyQt5.QtWidgets import QDialog, QMessageBox, QLabel, QSlider, QInputDialog, QGraphicsScene, QGraphicsPixmapItem
 from PyQt5.QtCore import QDate, Qt
 from PyQt5.QtGui import QPixmap
+
+from ui.DialogGameEdit import Ui_Dialog
 
 
 class DGameEdit(QDialog):

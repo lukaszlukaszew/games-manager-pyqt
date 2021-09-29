@@ -1,6 +1,8 @@
-import config
+# pylint: disable-msg=E0611
 from PyQt5.QtSql import QSqlDatabase, QSqlQuery, QSqlQueryModel
 from PyQt5.QtWidgets import QMessageBox
+
+import config
 
 
 class DatabaseConnector:
