@@ -1,6 +1,6 @@
 class Data:
     class GameList:
-        sql = "SELECT * FROM dbo.GamesMainView where id >= 95 order by Id"
+        sql = "SELECT * FROM dbo.GamesMainView-- where id = 127 or id >=135 order by Id"
 
         def __init__(self, conn):
             self.model = conn.sql_refresh(self.sql, None)
@@ -62,7 +62,7 @@ class Data:
         }
 
         def __init__(self, conn, game_id):
-            self.models = dict()
+            self.models = {}
 
             for i in self.sql_d.keys():
                 self.models[i] = conn.sql_refresh(self.sql_d[i], game_id)

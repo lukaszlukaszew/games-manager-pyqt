@@ -1,6 +1,6 @@
 # pylint: disable-msg=E0611
 from PyQt5.QtWidgets import QDialog
-from DGameEdit import DGameEdit
+from d_game_edit import DGameEdit
 from ui.SubWindowGames import Ui_Games
 
 
