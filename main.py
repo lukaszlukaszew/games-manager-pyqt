@@ -16,9 +16,8 @@ if __name__ == "__main__":
 
     sys.exit(app.exec_())
 
-
-# TODO - uzupełnić dokumentację
 # TODO - uzupełnić adnotacje
+# TODO - uzupełnić dokumentację
 # TODO - akcja DICTIONARIES
 
 # TODO - poprawić wygląd procki do manipulacji danych

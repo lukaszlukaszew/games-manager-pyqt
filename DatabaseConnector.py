@@ -36,6 +36,8 @@ class DatabaseConnector:
             for i in to_bind[key]:
                 qry.bindValue(i, params[i])
 
+        #    print(qry.boundValues())
+
             if qry.exec_():
                 self.db.commit()
                 return qry.lastInsertId()
