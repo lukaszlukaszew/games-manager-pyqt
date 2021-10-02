@@ -1,6 +1,5 @@
 # pylint: disable-msg=E0611
-
-""" Main Window -> Subwindow Games -> """
+"""Main Window -> Subwindow Games -> Dialog Game Edit"""
 
 from PyQt5.QtWidgets import QDialog, QMessageBox, QLabel, QSlider, QInputDialog, QGraphicsScene, QGraphicsPixmapItem
 from PyQt5.QtCore import QDate, Qt
@@ -10,8 +9,9 @@ from ui.DialogGameEdit import Ui_Dialog
 
 
 class DGameEdit(QDialog):
-    """Dialog dedicated to add new or edit existing game to the database. Every game can be described using these
-    attributes:
+    """Dialog dedicated to add new or edit existing game to the database.
+
+    Every game can be described using these attributes:
     - id (non-editable),
     - title,
     - series (for example: Diablo, Halo etc.),
@@ -76,6 +76,8 @@ class DGameEdit(QDialog):
 
         if self.params[":id"]:
             self.basic_info()
+
+        # TODO make dialog unmutable to check how it all will behave when more then one dialog is open
 
     def basic_info(self):
         """Insert basic data in the "INFO" & "REVIEW" tabs from game data: Id, Title, Release Date, Cover, Review."""
