@@ -1,11 +1,18 @@
 # pylint: disable-msg=E0611
 """Main Window -> Subwindow Games -> Dialog Game Edit"""
 
-from PyQt5.QtWidgets import QDialog, QMessageBox, QLabel, QSlider, QInputDialog, QGraphicsScene, QGraphicsPixmapItem
+from PyQt5.QtWidgets import (
+    QDialog,
+    QMessageBox,
+    QLabel,
+    QSlider,
+    QInputDialog,
+    QGraphicsScene,
+    QGraphicsPixmapItem,
+)
 from PyQt5.QtCore import QDate, Qt
 from PyQt5.QtGui import QPixmap
-
-from ui.DialogGameEdit import Ui_Dialog
+from ui.DialogGameEdit import Ui_Dialog  # type: ignore
 
 
 class DGameEdit(QDialog):
@@ -67,7 +74,9 @@ class DGameEdit(QDialog):
         for key, val in self.buttons.items():
             self.gui.__dict__["pushButton" + key].clicked.connect(getattr(self, val))
 
-        self.gui.progressBarAvgNote.setFormat(str(self.gui.progressBarAvgNote.value()).format(".2f"))
+        self.gui.progressBarAvgNote.setFormat(
+            str(self.gui.progressBarAvgNote.value()).format(".2f")
+        )
 
         self.dictionaries()
         self.difficulties()
@@ -84,15 +93,19 @@ class DGameEdit(QDialog):
         self.gui.lineEditId.setText(str(self.params[":id"]))
         self.gui.lineEditTitle.setText(self.game.models["Data"].record(0).value("Name"))
         self.gui.dateEditRelease.setDate(
-            QDate.fromString(self.game.models["Data"].record(0).value("Release_date"), "yyyy-MM-dd")
+            QDate.fromString(
+                self.game.models["Data"].record(0).value("Release_date"), "yyyy-MM-dd"
+            )
         )
-        self.gui.textEditReview.setText(self.game.models["Review"].record(0).value("Review"))
+        self.gui.textEditReview.setText(
+            self.game.models["Review"].record(0).value("Review")
+        )
 
         self.graphics["pixmap"].load("images/games/" + str(self.params[":id"]) + ".jpg")
         self.graphics["pixmap"] = self.graphics["pixmap"].scaled(
-            self.gui.graphicsViewCover.width()-20,
-            self.gui.graphicsViewCover.height()-20,
-            aspectRatioMode=Qt.KeepAspectRatio
+            self.gui.graphicsViewCover.width() - 20,
+            self.gui.graphicsViewCover.height() - 20,
+            aspectRatioMode=Qt.KeepAspectRatio,
         )
         self.graphics["image_item"] = QGraphicsPixmapItem(self.graphics["pixmap"])
         self.graphics["scene"].addItem(self.graphics["image_item"])
@@ -105,9 +118,13 @@ class DGameEdit(QDialog):
         for i in com_box:
             j = -1
             for k in range(self.game.models[i].rowCount()):
-                self.gui.__dict__["comboBox" + i].addItem(self.game.models[i].record(k).value("Name"))
+                self.gui.__dict__["comboBox" + i].addItem(
+                    self.game.models[i].record(k).value("Name")
+                )
                 if self.params[":id"]:
-                    if self.game.models[i].record(k).value("Id") == self.game.models["Data"].record(0).value(i + "_id"):
+                    if self.game.models[i].record(k).value("Id") == self.game.models[
+                        "Data"
+                    ].record(0).value(i + "_id"):
                         j = k
 
             self.gui.__dict__["comboBox" + i].setCurrentIndex(j)
@@ -125,23 +142,39 @@ class DGameEdit(QDialog):
                 self.gui.__dict__["label" + note_category + "Note"].deleteLater()
                 self.gui.__dict__["horizontalSlider" + note_category].deleteLater()
 
-            self.gui.__dict__["label" + note_category] = QLabel(self.gui.scrollAreaWidgetContents)
+            self.gui.__dict__["label" + note_category] = QLabel(
+                self.gui.scrollAreaWidgetContents
+            )
             self.gui.__dict__["label" + note_category].setText(note_category)
             self.gui.__dict__["label" + note_category].setFixedHeight(40)
-            self.gui.gridLayout_6.addWidget(self.gui.__dict__["label" + note_category], i, 0, 1, 1)
+            self.gui.gridLayout_6.addWidget(
+                self.gui.__dict__["label" + note_category], i, 0, 1, 1
+            )
 
-            self.gui.__dict__["label" + note_category + "Note"] = QLabel(self.gui.scrollAreaWidgetContents)
+            self.gui.__dict__["label" + note_category + "Note"] = QLabel(
+                self.gui.scrollAreaWidgetContents
+            )
             self.gui.__dict__["label" + note_category + "Note"].setFixedWidth(35)
-            self.gui.gridLayout_6.addWidget(self.gui.__dict__["label" + note_category + "Note"], i, 1, 1, 1)
+            self.gui.gridLayout_6.addWidget(
+                self.gui.__dict__["label" + note_category + "Note"], i, 1, 1, 1
+            )
 
-            self.gui.__dict__["horizontalSlider" + note_category] = QSlider(self.gui.scrollAreaWidgetContents)
+            self.gui.__dict__["horizontalSlider" + note_category] = QSlider(
+                self.gui.scrollAreaWidgetContents
+            )
             self.gui.__dict__["horizontalSlider" + note_category].setMaximum(10)
             self.gui.__dict__["horizontalSlider" + note_category].setPageStep(1)
-            self.gui.__dict__["horizontalSlider" + note_category].setOrientation(Qt.Horizontal)
-            self.gui.gridLayout_6.addWidget(self.gui.__dict__["horizontalSlider" + note_category], i, 2, 1, 1)
+            self.gui.__dict__["horizontalSlider" + note_category].setOrientation(
+                Qt.Horizontal
+            )
+            self.gui.gridLayout_6.addWidget(
+                self.gui.__dict__["horizontalSlider" + note_category], i, 2, 1, 1
+            )
 
             self.gui.__dict__["label" + note_category + "Note"].setText(note)
-            self.gui.__dict__["horizontalSlider" + note_category].valueChanged.connect(self.avg_note)
+            self.gui.__dict__["horizontalSlider" + note_category].valueChanged.connect(
+                self.avg_note
+            )
             self.gui.__dict__["horizontalSlider" + note_category].setValue(int(note))
 
     def difficulties(self):
@@ -163,7 +196,9 @@ class DGameEdit(QDialog):
         for i in own:
             for j in range(self.game.models[i].rowCount()):
                 if self.game.models[i].record(j).value("Game_id"):
-                    self.gui.__dict__["listWidget"+i].addItem(self.game.models[i].record(j).value("Name"))
+                    self.gui.__dict__["listWidget" + i].addItem(
+                        self.game.models[i].record(j).value("Name")
+                    )
 
     def avg_note(self):
         """Set value of progress bar based on values of all notes sliders in the "NOTES" tab."""
@@ -172,7 +207,9 @@ class DGameEdit(QDialog):
 
         for key, val in self.gui.__dict__.items():
             if key.startswith("horizontalSlider"):
-                self.gui.__dict__["label" + key.replace("horizontalSlider", "") + "Note"].setText(str(val.value()))
+                self.gui.__dict__[
+                    "label" + key.replace("horizontalSlider", "") + "Note"
+                ].setText(str(val.value()))
                 notes_sum += val.value()
                 notes_count += 1
 
@@ -191,37 +228,44 @@ class DGameEdit(QDialog):
         if bool(self.gui.listWidgetDifficulties.selectedItems()):
             rows = self.gui.listWidgetDifficulties.currentRow() + 1
             for _ in range(rows):
-                self.gui.listWidgetDifficultiesComplete.addItem(self.gui.listWidgetDifficulties.item(0).text())
+                self.gui.listWidgetDifficultiesComplete.addItem(
+                    self.gui.listWidgetDifficulties.item(0).text()
+                )
                 self.gui.listWidgetDifficulties.takeItem(0)
 
     def difficulty_not_completed(self):
         """Remove item and all items after from complete listWidget and put them to incomplete listWidget."""
         if bool(self.gui.listWidgetDifficultiesComplete.selectedItems()):
             rows = self.gui.listWidgetDifficultiesComplete.currentRow()
-            for i in range(self.gui.listWidgetDifficultiesComplete.count() - 1, rows - 1, -1):
-                self.gui.listWidgetDifficulties.insertItem(0, self.gui.listWidgetDifficultiesComplete.item(i).text())
+            for i in range(
+                self.gui.listWidgetDifficultiesComplete.count() - 1, rows - 1, -1
+            ):
+                self.gui.listWidgetDifficulties.insertItem(
+                    0, self.gui.listWidgetDifficultiesComplete.item(i).text()
+                )
                 self.gui.listWidgetDifficultiesComplete.takeItem(i)
 
     def add_from_dict_value(self):
         """Add unique values from proper dictionary to choosen listWidget."""
-        dictionary = self.sender().objectName().replace("pushButton", "").replace("ToList", "")
+        dictionary = (
+            self.sender().objectName().replace("pushButton", "").replace("ToList", "")
+        )
 
         items = {
-            self.gui.__dict__["listWidget" + dictionary].item(x).text() for x in range(
-                self.gui.__dict__["listWidget" + dictionary].count()
-            )
+            self.gui.__dict__["listWidget" + dictionary].item(x).text()
+            for x in range(self.gui.__dict__["listWidget" + dictionary].count())
         }
 
         temp = {
-            self.game.models[dictionary].record(x).value("Name") for x in range(
-                self.game.models[dictionary].rowCount()
-            )
+            self.game.models[dictionary].record(x).value("Name")
+            for x in range(self.game.models[dictionary].rowCount())
         }
 
         if dictionary == "Difficulties":
             items_c = {
-                self.gui.__dict__["listWidget" + dictionary+"Complete"].item(x).text() for x in range(
-                    self.gui.__dict__["listWidget" + dictionary+"Complete"].count()
+                self.gui.__dict__["listWidget" + dictionary + "Complete"].item(x).text()
+                for x in range(
+                    self.gui.__dict__["listWidget" + dictionary + "Complete"].count()
                 )
             }
 
@@ -230,7 +274,9 @@ class DGameEdit(QDialog):
         temp = temp.difference(items)
 
         if len(temp):
-            value, result = QInputDialog.getItem(self, dictionary, "Please select new value:", temp, editable=False)
+            value, result = QInputDialog.getItem(
+                self, dictionary, "Please select new value:", temp, editable=False
+            )
 
             if (value and result) and (value not in items):
                 self.gui.__dict__["listWidget" + dictionary].addItem(value)
@@ -239,18 +285,28 @@ class DGameEdit(QDialog):
 
     def remove_from_list(self):
         """Remove selected item from the listWidget."""
-        dictionary = self.sender().objectName().replace("pushButton", "").replace("Delete", "")
-        self.gui.__dict__["listWidget" + dictionary].takeItem(self.gui.__dict__["listWidget" + dictionary].currentRow())
+        dictionary = (
+            self.sender().objectName().replace("pushButton", "").replace("Delete", "")
+        )
+        self.gui.__dict__["listWidget" + dictionary].takeItem(
+            self.gui.__dict__["listWidget" + dictionary].currentRow()
+        )
 
     def add_dict_value(self):
         """Add value to the choosen database dictionary, refresh proper data and widgets."""
-        dictionary = self.sender().objectName().replace("pushButton", "").replace("Add", "")
-        value, result = QInputDialog.getText(self, dictionary, "Please input new value:")
+        dictionary = (
+            self.sender().objectName().replace("pushButton", "").replace("Add", "")
+        )
+        value, result = QInputDialog.getText(
+            self, dictionary, "Please input new value:"
+        )
 
         if value and result:
             self.params[":dictionary"] = dictionary
             self.params[":value"] = value
-            if self.conn.sql_upload(self.params, self.game.sql_u, self.game.params, "Dict"):
+            if self.conn.sql_upload(
+                self.params, self.game.sql_u, self.game.params, "Dict"
+            ):
                 QMessageBox.warning(None, "Confirmation", "Value added")
 
             self.game.data_refresh(self.conn, self.params[":id"], dictionary)
@@ -268,8 +324,11 @@ class DGameEdit(QDialog):
 
     def save(self):
         """Check if saving is possible, if yes save all changes."""
-        check = [self.gui.lineEditTitle.text(), self.gui.comboBoxCategory.currentText(),
-                 self.gui.comboBoxGenre.currentText()]
+        check = [
+            self.gui.lineEditTitle.text(),
+            self.gui.comboBoxCategory.currentText(),
+            self.gui.comboBoxGenre.currentText(),
+        ]
 
         if all(check):
             self.save_data()
@@ -290,18 +349,30 @@ class DGameEdit(QDialog):
         self.params[":name"] = self.gui.lineEditTitle.text()
         self.params[":series"] = None
         self.params[":date"] = self.gui.dateEditRelease.text()
-        self.params[":category"] = self.game.models["Category"].record(
-            self.gui.comboBoxCategory.currentIndex()).value("Id")
-        self.params[":genre"] = self.game.models["Genre"].record(self.gui.comboBoxGenre.currentIndex()).value("Id")
+        self.params[":category"] = (
+            self.game.models["Category"]
+            .record(self.gui.comboBoxCategory.currentIndex())
+            .value("Id")
+        )
+        self.params[":genre"] = (
+            self.game.models["Genre"]
+            .record(self.gui.comboBoxGenre.currentIndex())
+            .value("Id")
+        )
 
         if self.gui.comboBoxSeries.currentIndex() != -1:
-            self.params[":series"] = self.game.models["Series"].record(
-                self.gui.comboBoxSeries.currentIndex()).value("Id")
+            self.params[":series"] = (
+                self.game.models["Series"]
+                .record(self.gui.comboBoxSeries.currentIndex())
+                .value("Id")
+            )
 
         if self.params[":id"]:
             self.conn.sql_upload(self.params, self.game.sql_u, self.game.params, "Data")
         else:
-            self.params[":id"] = self.conn.sql_upload(self.params, self.game.sql_u, self.game.params, "Data")
+            self.params[":id"] = self.conn.sql_upload(
+                self.params, self.game.sql_u, self.game.params, "Data"
+            )
 
     def save_notes(self):
         """Save game notes to the database."""
@@ -310,48 +381,81 @@ class DGameEdit(QDialog):
 
         for i in range(self.game.models["Notes"].rowCount()):
             self.params[":note_id"] = self.game.models["Notes"].record(i).value("Id")
-            self.params[":note"] = \
-                self.gui.__dict__["horizontalSlider" + self.game.models["Notes"].record(i).value("Name")].value()
-            self.conn.sql_upload(self.params, self.game.sql_u, self.game.params, "Notes")
+            self.params[":note"] = self.gui.__dict__[
+                "horizontalSlider" + self.game.models["Notes"].record(i).value("Name")
+            ].value()
+            self.conn.sql_upload(
+                self.params, self.game.sql_u, self.game.params, "Notes"
+            )
 
     def save_collection(self, dictionary):
         """Save game ownership information to the database."""
-        self.conn.sql_upload(self.params, self.game.sql_u, self.game.params, dictionary + "1")
+        self.conn.sql_upload(
+            self.params, self.game.sql_u, self.game.params, dictionary + "1"
+        )
 
         self.params[":" + dictionary.lower()] = None
 
         for i in range(self.gui.listWidgetCollection.count()):
             for j in range(self.game.models[dictionary].rowCount()):
-                if self.game.models[dictionary].record(j).value("Name") == \
-                        self.gui.listWidgetCollection.item(i).text():
-                    self.params[":" + dictionary.lower()] = self.game.models[dictionary].record(j).value("Id")
-                    self.conn.sql_upload(self.params, self.game.sql_u, self.game.params, dictionary + "2")
+                if (
+                    self.game.models[dictionary].record(j).value("Name")
+                    == self.gui.listWidgetCollection.item(i).text()
+                ):
+                    self.params[":" + dictionary.lower()] = (
+                        self.game.models[dictionary].record(j).value("Id")
+                    )
+                    self.conn.sql_upload(
+                        self.params, self.game.sql_u, self.game.params, dictionary + "2"
+                    )
 
-        self.conn.sql_upload(self.params, self.game.sql_u, self.game.params, dictionary + "3")
+        self.conn.sql_upload(
+            self.params, self.game.sql_u, self.game.params, dictionary + "3"
+        )
 
     def save_difficulties(self):
         """Save game difficulty levels to the database."""
-        self.conn.sql_upload(self.params, self.game.sql_u, self.game.params, "Difficulties1")
+        self.conn.sql_upload(
+            self.params, self.game.sql_u, self.game.params, "Difficulties1"
+        )
 
         self.params[":diff"] = None
         self.params[":ign"] = 0
 
         for i in range(1, -1, -1):
             self.params[":complete"] = i
-            for j in range(self.gui.__dict__["listWidgetDifficulties" + "Complete" * self.params[":complete"]].count()):
+            for j in range(
+                self.gui.__dict__[
+                    "listWidgetDifficulties" + "Complete" * self.params[":complete"]
+                ].count()
+            ):
                 for k in range(self.game.models["Difficulties"].rowCount()):
-                    if self.game.models["Difficulties"].record(k).value("Name") == \
-                            self.gui.__dict__[
-                                "listWidgetDifficulties" + "Complete" * self.params[":complete"]
-                            ].item(j).text():
-                        self.params[":diff"] = self.game.models["Difficulties"].record(k).value("Id")
-                        self.conn.sql_upload(self.params, self.game.sql_u, self.game.params, "Difficulties2")
+                    if (
+                        self.game.models["Difficulties"].record(k).value("Name")
+                        == self.gui.__dict__[
+                            "listWidgetDifficulties"
+                            + "Complete" * self.params[":complete"]
+                        ]
+                        .item(j)
+                        .text()
+                    ):
+                        self.params[":diff"] = (
+                            self.game.models["Difficulties"].record(k).value("Id")
+                        )
+                        self.conn.sql_upload(
+                            self.params,
+                            self.game.sql_u,
+                            self.game.params,
+                            "Difficulties2",
+                        )
 
                 self.params[":ign"] += 1
 
-        self.conn.sql_upload(self.params, self.game.sql_u, self.game.params, "Difficulties3")
+        self.conn.sql_upload(
+            self.params, self.game.sql_u, self.game.params, "Difficulties3"
+        )
 
     def save_review(self):
-        """ Save game review to the database."""
+        """Save game review to the database."""
         self.params[":text"] = self.gui.textEditReview.toPlainText()
         self.conn.sql_upload(self.params, self.game.sql_u, self.game.params, "Review")

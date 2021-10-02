@@ -1,7 +1,7 @@
 # pylint: disable-msg=E0611
 """Main Window"""
 from PyQt5.QtWidgets import QMainWindow
-from ui import MainWindow
+from ui import MainWindow  # type: ignore
 from s_window_games import SubWindowGames
 from s_window_dicts import SubWindowDicts
 
@@ -13,7 +13,13 @@ class AppGamesManager(QMainWindow):
     - Edit - > Games
     """
 
-    actions = ["Games", "Dictionaries", "Notes", "Tags", "Reviews"]
+    actions = [
+        "Games",
+        "Dictionaries",
+        "Notes",
+        "Tags",
+        "Reviews",
+    ]  # type: ignore
 
     def __init__(self, conn, data):
         super().__init__()
@@ -22,7 +28,9 @@ class AppGamesManager(QMainWindow):
         self.showMaximized()
 
         for val in self.actions:
-            self.gui.__dict__["action" + val].triggered.connect(getattr(self, "subwindow_" + val.lower()))
+            self.gui.__dict__["action" + val].triggered.connect(
+                getattr(self, "subwindow_" + val.lower())
+            )
 
         self.conn = conn
         self.data = data

@@ -2,7 +2,7 @@
 """Main Window -> Subwindow Dicts"""
 
 from PyQt5.QtWidgets import QDialog
-from ui.SubWindowDicts import Ui_Dictionaries
+from ui.SubWindowDicts import Ui_Dictionaries  # type: ignore
 
 
 class SubWindowDicts(QDialog):
@@ -43,7 +43,6 @@ set @query = N'SELECT ' + @cols + N' from
 
 exec sp_executesql @query;"""
 
-
         self.model = self.conn.sql_refresh(sql, None)
         self.gui.tableView.setModel(self.model)
 
@@ -58,5 +57,6 @@ exec sp_executesql @query;"""
 
     def details(self):
         """In progress"""
+
 
 # TODO - poprawić układ okienka, jest jakiś taki do dupy
