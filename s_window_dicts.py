@@ -1,13 +1,17 @@
 # pylint: disable-msg=E0611
+"""Main Window -> Subwindow Dicts"""
+
 from PyQt5.QtWidgets import QDialog
 from ui.SubWindowDicts import Ui_Dictionaries
 
 
 class SubWindowDicts(QDialog):
+    """In progress"""
+
     def __init__(self, conn, data):
         super().__init__()
-        self.ui = Ui_Dictionaries()
-        self.ui.setupUi(self)
+        self.gui = Ui_Dictionaries()
+        self.gui.setupUi(self)
 
         self.conn = conn
         self.data = data
@@ -41,20 +45,18 @@ exec sp_executesql @query;"""
 
 
         self.model = self.conn.sql_refresh(sql, None)
-        self.ui.tableView.setModel(self.model)
-
+        self.gui.tableView.setModel(self.model)
 
     def edit_dict_value(self):
-        pass
+        """In progress"""
 
     def refresh(self):
-        pass
+        """In progress"""
 
     def switch_rows_and_columns(self):
-        pass
+        """In progress"""
 
     def details(self):
-        pass
-
+        """In progress"""
 
 # TODO - poprawić układ okienka, jest jakiś taki do dupy

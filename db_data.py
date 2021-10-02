@@ -1,11 +1,20 @@
+"""All project's data container."""
+
+
 class Data:
+    """Parent class containing all seperate classes with their models."""
+
     class GameList:
-        sql = "SELECT * FROM dbo.GamesMainView-- where id = 127 or id >=135 order by Id"
+        """Used in Subwindow Games."""
+
+        sql = "SELECT * FROM dbo.GamesMainView where id >=157 order by Id"
 
         def __init__(self, conn):
             self.model = conn.sql_refresh(self.sql, None)
 
     class Game:
+        """Used in Dialog Game Edit/Add."""
+
         sql_d = {
             "Data": 'SELECT Id, Name, Category_id, Genre_id, Series_id, Release_date FROM dbo.Games WHERE Id = :id',
             "Series": 'SELECT Id, Name FROM dbo.GamesDictionarySeries ORDER BY Name',
@@ -64,8 +73,9 @@ class Data:
         def __init__(self, conn, game_id):
             self.models = {}
 
-            for i in self.sql_d.keys():
-                self.models[i] = conn.sql_refresh(self.sql_d[i], game_id)
+            for key, val in self.sql_d.items():
+                self.models[key] = conn.sql_refresh(val, game_id)
 
         def data_refresh(self, conn, game_id, key):
+            """Refresh single model."""
             self.models[key] = conn.sql_refresh(self.sql_d[key], game_id)

@@ -1,21 +1,22 @@
 # pylint: disable-msg=E0611
+"""Main file of the project - without terminal."""
+
 import sys
 from PyQt5.QtWidgets import QApplication
 
-from MWindow import AppGamesManager
-from DatabaseConnector import DatabaseConnector
-from Data import Data
+from m_window import AppGamesManager
+from db_connector import DatabaseConnector
+from db_data import Data
 
 if __name__ == "__main__":
-    app: QApplication = QApplication(sys.argv)
-    dbc: DatabaseConnector = DatabaseConnector()
-    dat: Data = Data()
-    win: AppGamesManager = AppGamesManager(conn=dbc, data=dat)
+    app = QApplication(sys.argv)
+    dbc = DatabaseConnector()
+    dat = Data()
+    win = AppGamesManager(conn=dbc, data=dat)
 
     win.show()
 
     sys.exit(app.exec_())
-
 
 # TODO - uzupełnić dokumentację
 # TODO - uzupełnić adnotacje
