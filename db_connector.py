@@ -17,7 +17,7 @@ class DatabaseConnector:
     """
 
     def __init__(self):
-        self.data_base = QSqlDatabase.addDatabase('QODBC')
+        self.data_base = QSqlDatabase.addDatabase("QODBC")
         self.data_base.setDatabaseName(config.conn_string)
         self.data_base.open()
 
@@ -61,8 +61,8 @@ class DatabaseConnector:
         if self.data_base.isOpen():
             if ":id" in sql:
                 if game_id:
-                    qry.bindValue(':id', game_id)
+                    qry.bindValue(":id", game_id)
                 else:
-                    qry.bindValue(':id', 0)
+                    qry.bindValue(":id", 0)
 
         return self.sql_query_model_fetch(model, qry)

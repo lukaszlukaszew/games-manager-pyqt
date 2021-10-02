@@ -3,15 +3,15 @@
 
 from PyQt5.QtWidgets import QDialog
 from d_game_edit import DGameEdit
-from ui.SubWindowGames import Ui_Games
+from ui.SubWindowGames import Ui_Games  # type: ignore
 
 
 class SubWindowGames(QDialog):
     """SubWindow containing list of all games in the database.
 
-     At the moment list is ordered by id of the game. From this subwindow you could add new game to the database or edit
-     existing.
-     """
+    At the moment list is ordered by id of the game. From this subwindow you could add new game to the database or edit
+    existing.
+    """
 
     def __init__(self, conn, data):
         super().__init__()
